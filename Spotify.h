@@ -34,6 +34,10 @@
 - (id)initWithPlayer:(SPTPlayerImpl *)player;
 @end
 
+@interface SPTRadioManager : NSObject
+@end
+
+
 // Images
 @interface UIImage (spt)
 + (id)imageForSPTIcon:(NSInteger)icon size:(CGSize)size;
@@ -103,6 +107,13 @@
 
 @interface SPTQueueTrackAction : SPAction
 - (id)initWithTrack:(SPTPlayerTrack *)track player:(SPTPlayerImpl *)player playerQueue:(SPTCosmosPlayerQueue *)queue upsellManager:(id)arg1 logContext:(id)log alertController:(id)alert;
+@end
+
+@interface SPTStartRadioAction : SPAction
+- (id)initWithSeedURL:(NSURL *)URL
+            session:(id)session
+       radioManager:(id)radioManager
+         logContext:(id)log;
 @end
 
 @interface SPTGoToURLAction : SPAction

@@ -50,7 +50,8 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
            playlistFeature:(PlaylistFeatureImplementation *)playlistFeature
         collectionPlatform:(SPTCollectionPlatformImplementation *)collectionPlatform
             linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
-     scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager {
+     scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
+              radioManager:(SPTRadioManager *)radioManager {
     if (self = [super init]) {
         self.prefs = prefs;
         self.nowPlayingBarHeight = height;
@@ -62,6 +63,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         self.collectionPlatform = collectionPlatform;
         self.linkDispatcher = linkDispatcher;
         self.scannablesTestManager = scannablesTestManager;
+        self.radioManager = radioManager;
 
         self.navigationItem = [[UINavigationItem alloc] initWithTitle:@"History"];
     }
@@ -198,6 +200,11 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
                                                                     upsellManager:nil
                                                                        logContext:nil
                                                                   alertController:[%c(SPTAlertPresenter) sharedInstance]];
+    // Start radio
+    SPTStartRadioAction *toRadio = [[%c(SPTStartRadioAction) alloc] initWithSeedURL:cell.trackURI
+                                                                            session:nil
+                                                                       radioManager:self.radioManager
+                                                                         logContext:nil];
 
     // Go to artist
     SPTGoToURLAction *toArtist = [[%c(SPTGoToURLAction) alloc] initWithURL:cell.artistURI
@@ -220,15 +227,15 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
             inCollection = YES;
         }
         SPTCollectionPlatformAddRemoveFromCollectionAction *toCollection = [[%c(SPTCollectionPlatformAddRemoveFromCollectionAction) alloc] initWithLink:cell.trackURI
-                                                                                                                               collectionPlatform:self.collectionPlatform
-                                                                                                                            collectionTestManager:self.collectionPlatform.collectionTestManager
-                                                                                                                                  wasInCollection:inCollection
-                                                                                                                                       logContext:nil
-                                                                                                                                        sourceURL:sourceURL];
+                                                                                                                                     collectionPlatform:self.collectionPlatform
+                                                                                                                                  collectionTestManager:self.collectionPlatform.collectionTestManager
+                                                                                                                                        wasInCollection:inCollection
+                                                                                                                                             logContext:nil
+                                                                                                                                              sourceURL:sourceURL];
 
 
         /* Create view controller */
-        NSArray *actions = [%c(SPTContextMenuTaskAction) actionsWithActions:@[toCollection, toPlaylist, toQueue, toArtist, toAlbum]];
+        NSArray *actions = [%c(SPTContextMenuTaskAction) actionsWithActions:@[toCollection, toPlaylist, toQueue, toRadio, toArtist, toAlbum]];
 
         SPTContextMenuViewController *vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
                                                                                                     actions:actions

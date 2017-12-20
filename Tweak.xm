@@ -9,6 +9,7 @@ static SPTImageLoaderImplementation *contextImageLoader;
 static PlaylistFeatureImplementation *playlistFeature;
 static SPTCollectionPlatformImplementation *collectionPlatform;
 static SPTScannablesTestManagerImplementation *scannablesTestManager;
+static SPTRadioManager *radioManager;
 
 
 // Help methods to create a context actions
@@ -94,7 +95,8 @@ static CGFloat npBarHeight;
                                                        playlistFeature:playlistFeature
                                                     collectionPlatform:collectionPlatform
                                                         linkDispatcher:self.linkDispatcher
-                                                 scannablesTestManager:scannablesTestManager];
+                                                 scannablesTestManager:scannablesTestManager
+                                                          radioManager:radioManager];
         }
 
         [self.navigationController pushViewControllerOnTopOfTheNavigationStack:vc animated:YES];
@@ -249,3 +251,14 @@ static CGFloat npBarHeight;
 }
 
 %end
+
+
+// Used to start radio from track
+%hook SPTRadioManager
+
+- (id)initWithLocalSettings:(id)arg1 abba:(id)arg2 productState:(id)arg3 {
+    return radioManager = %orig;
+}
+
+%end
+
