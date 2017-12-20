@@ -42,6 +42,7 @@ static SPTScannablesTestManagerImplementation *scannablesTestManager;
     @"title": @"History" \
 }
 
+// Inject the history entry
 %hook SPTCollectionOverviewNavigationModel
 
 - (void)setupNavigationItems {
@@ -66,6 +67,7 @@ static CGFloat npBarHeight;
 %end
 
 /*
+ * Presenting the history view:
  * There is probably a better way to do this, with register URI schemas within Spotify.
  * However, after several hours of scratching my head, I cannot seem to understand how.
  * If you're a bored developer, look into the `linkDispatcher` object of
@@ -176,8 +178,8 @@ static CGFloat npBarHeight;
 %end
 
 
-// Even though only the SPTPlayerImpl is needed, I'm hooking this since
-// this init method seems far less likely to change.
+// Even though only the SPTPlayerImpl is needed, I'm hooking
+// this since this init method seems far less likely to change.
 %hook SPTStatefulPlayer
 
 - (id)initWithPlayer:(id)player {
