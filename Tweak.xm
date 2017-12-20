@@ -11,6 +11,19 @@ static SPTCollectionPlatformImplementation *collectionPlatform;
 static SPTScannablesTestManagerImplementation *scannablesTestManager;
 
 
+// Help method to create a context actoin
+%hook SPTContextMenuTaskAction
+
+%new
++ (id)actionWithAction:(SPAction *)action {
+    SPTContextMenuTaskAction *contextAction = [[%c(SPTContextMenuTaskAction) alloc] init];
+    contextAction.action = action;
+    return contextAction;
+}
+
+%end
+
+
 // Highest order is 100 as of currently, but I'm setting
 // this to 200 to make sure it's the last item.
 #define HISTORY_ENTRY_DICT @{ \
@@ -114,7 +127,9 @@ static CGFloat npBarHeight;
             tr[@"URI"] = self.currentTrack.URI.absoluteString;
             tr[@"name"] = self.currentTrack.trackTitle;
             tr[@"artist"] = self.currentTrack.artistTitle;
+            tr[@"artistURI"] = self.currentTrack.artistURI.absoluteString;
             tr[@"album"] = self.currentTrack.albumTitle;
+            tr[@"albumURI"] = self.currentTrack.albumURI.absoluteString;
 
             NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
             if (!prefs) {

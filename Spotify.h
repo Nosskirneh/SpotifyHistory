@@ -5,6 +5,8 @@
 @interface SPTPlayerTrack : NSObject
 @property (nonatomic, readwrite, assign) NSURL *imageURL;
 @property (nonatomic, readwrite, assign) NSURL *URI;
+@property (nonatomic, readwrite, assign) NSURL *artistURI;
+@property (nonatomic, readwrite, assign) NSURL *albumURI;
 + (id)trackWithURI:(NSURL *)URI;
 - (NSString *)trackTitle;
 - (NSString *)artistTitle;
@@ -92,15 +94,23 @@
 @end
 
 @interface SPTAddToPlaylistAction : SPAction
-- (id)initWithTrackURLs:(NSArray *)tracks addEntityURL:(NSURL *)entityURL defaultPlaylistName:(NSString *)name playlistFeature:(id)playlistFeature logContext:(id)logContext sourceURL:(NSURL *)sourceURL contextSourceURL:(NSURL *)contextSourceURL;
+- (id)initWithTrackURLs:(NSArray *)tracks addEntityURL:(NSURL *)entityURL defaultPlaylistName:(NSString *)name playlistFeature:(id)playlistFeature logContext:(id)log sourceURL:(NSURL *)sourceURL contextSourceURL:(NSURL *)contextSourceURL;
 @end
 
 @interface SPTCollectionPlatformAddRemoveFromCollectionAction : SPAction
-- (id)initWithLink:(NSURL *)link collectionPlatform:(id)colPlatform collectionTestManager:(id)colTestManager wasInCollection:(BOOL)inCollection logContext:(id)logContext sourceURL:(NSURL *)sourceURL;
+- (id)initWithLink:(NSURL *)link collectionPlatform:(id)colPlatform collectionTestManager:(id)colTestManager wasInCollection:(BOOL)inCollection logContext:(id)log sourceURL:(NSURL *)sourceURL;
 @end
 
 @interface SPTQueueTrackAction : SPAction
-- (id)initWithTrack:(SPTPlayerTrack *)track player:(SPTPlayerImpl *)player playerQueue:(SPTCosmosPlayerQueue *)queue upsellManager:(id)arg1 logContext:(id)arg2 alertController:(id)alert;
+- (id)initWithTrack:(SPTPlayerTrack *)track player:(SPTPlayerImpl *)player playerQueue:(SPTCosmosPlayerQueue *)queue upsellManager:(id)arg1 logContext:(id)log alertController:(id)alert;
+@end
+
+@interface SPTGoToURLAction : SPAction
+- (id)initWithURL:(NSURL *)URL
+            title:(NSString *)title
+     logEventName:(NSString *)logName
+            order:(NSInteger *)order
+       logContext:(id)log;
 @end
 
 // Context menu
@@ -111,8 +121,7 @@
 
 @interface SPTContextMenuTaskAction : NSObject
 @property (nonatomic, readwrite, assign) SPAction *action;
-+ (id)actionFromTask:(SPAction *)task;
-+ (id)actionsFromTasks:(NSArray *)tasks;
++ (id)actionWithAction:(SPAction *)action;
 @end
 
 @interface SPTContextMenuModel : NSObject
