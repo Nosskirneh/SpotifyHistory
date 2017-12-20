@@ -188,7 +188,6 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
                                                                                     logContext:nil
                                                                                      sourceURL:sourceURL
                                                                               contextSourceURL:nil];
-    SPTContextMenuTaskAction *playlistAction = [%c(SPTContextMenuTaskAction) actionWithAction:toPlaylist];
 
     // Add to queue
     SPTPlayerTrack *track = [%c(SPTPlayerTrack) trackWithURI:cell.trackURI];
@@ -199,7 +198,6 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
                                                                     upsellManager:nil
                                                                        logContext:nil
                                                                   alertController:[%c(SPTAlertPresenter) sharedInstance]];
-    SPTContextMenuTaskAction *queueAction = [%c(SPTContextMenuTaskAction) actionWithAction:toQueue];
 
     // Go to artist
     SPTGoToURLAction *toArtist = [[%c(SPTGoToURLAction) alloc] initWithURL:cell.artistURI
@@ -207,7 +205,6 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
                                                               logEventName:nil
                                                                      order:0
                                                                 logContext:nil];
-    SPTContextMenuTaskAction *artistAction = [%c(SPTContextMenuTaskAction) actionWithAction:toArtist];
 
     // Go to album
     SPTGoToURLAction *toAlbum = [[%c(SPTGoToURLAction) alloc] initWithURL:cell.albumURI
@@ -215,7 +212,6 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
                                                              logEventName:nil
                                                                     order:0
                                                                logContext:nil];
-    SPTContextMenuTaskAction *albumAction = [%c(SPTContextMenuTaskAction) actionWithAction:toAlbum];
 
     /* Check collection state */
     [self.collectionPlatform collectionStateForURL:cell.trackURI completion:^void(NSInteger value) {
@@ -223,7 +219,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         if (value == inCollectionEnum) {
             inCollection = YES;
         }
-        SPTCollectionPlatformAddRemoveFromCollectionAction *collection = [[%c(SPTCollectionPlatformAddRemoveFromCollectionAction) alloc] initWithLink:cell.trackURI
+        SPTCollectionPlatformAddRemoveFromCollectionAction *toCollection = [[%c(SPTCollectionPlatformAddRemoveFromCollectionAction) alloc] initWithLink:cell.trackURI
                                                                                                                                collectionPlatform:self.collectionPlatform
                                                                                                                             collectionTestManager:self.collectionPlatform.collectionTestManager
                                                                                                                                   wasInCollection:inCollection
@@ -231,11 +227,8 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
                                                                                                                                         sourceURL:sourceURL];
 
 
-        SPTContextMenuTaskAction *collectionAction = [[%c(SPTContextMenuTaskAction) alloc] init];
-        collectionAction.action = collection;
-
         /* Create view controller */
-        NSArray *actions = [[NSArray alloc] initWithObjects:collectionAction, playlistAction, queueAction, artistAction, albumAction, nil];
+        NSArray *actions = [%c(SPTContextMenuTaskAction) actionsWithActions:@[toCollection, toPlaylist, toQueue, toArtist, toAlbum]];
 
         SPTContextMenuViewController *vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
                                                                                                     actions:actions

@@ -11,7 +11,7 @@ static SPTCollectionPlatformImplementation *collectionPlatform;
 static SPTScannablesTestManagerImplementation *scannablesTestManager;
 
 
-// Help method to create a context actoin
+// Help methods to create a context actions
 %hook SPTContextMenuTaskAction
 
 %new
@@ -19,6 +19,15 @@ static SPTScannablesTestManagerImplementation *scannablesTestManager;
     SPTContextMenuTaskAction *contextAction = [[%c(SPTContextMenuTaskAction) alloc] init];
     contextAction.action = action;
     return contextAction;
+}
+
+%new
++ (NSArray *)actionsWithActions:(NSArray<SPAction *> *)actions {
+    NSMutableArray *contextActions = [NSMutableArray new];
+    for (SPAction *action in actions) {
+        [contextActions addObject:[%c(SPTContextMenuTaskAction) actionWithAction:action]];
+    }
+    return contextActions;
 }
 
 %end

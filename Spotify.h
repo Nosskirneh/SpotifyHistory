@@ -122,6 +122,7 @@
 @interface SPTContextMenuTaskAction : NSObject
 @property (nonatomic, readwrite, assign) SPAction *action;
 + (id)actionWithAction:(SPAction *)action;
++ (NSArray *)actionsWithActions:(NSArray<SPAction *> *)actions;
 @end
 
 @interface SPTContextMenuModel : NSObject
