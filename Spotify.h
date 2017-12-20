@@ -1,11 +1,46 @@
 #define inCollectionEnum 0
 #define notInCollectionEnum 2
 
+// Data objects
+@interface SPTPlayerTrack : NSObject
+@property (nonatomic, readwrite, assign) NSURL *imageURL;
+@property (nonatomic, readwrite, assign) NSURL *URI;
++ (id)trackWithURI:(NSURL *)URI;
+- (NSString *)trackTitle;
+- (NSString *)artistTitle;
+- (NSString *)albumTitle;
+@end
+
+@interface SPTPlayerContext : NSObject
++ (id)contextForURI:(NSURL *)URI;
+@end
+
+@interface SPTPlayerImpl : NSObject
+- (id)playContext:(id)arg1 options:(id)arg2;
+@end
+
+@interface SPTStatefulPlayerQueue : NSObject
+- (BOOL)isTrack:(SPTPlayerTrack *)track1 equalToTrack:(SPTPlayerTrack *)track2;
+@end
+
+@interface SPTStatefulPlayer : NSObject
+@property (nonatomic, readwrite, assign) SPTPlayerImpl *player;
+@property (nonatomic, readwrite, assign) SPTStatefulPlayerQueue *queue;
+@end
+
+@interface SPTCosmosPlayerQueue : NSObject
+- (id)initWithPlayer:(SPTPlayerImpl *)player;
+@end
+
 // Images
 @interface UIImage (spt)
 + (id)imageForSPTIcon:(NSInteger)icon size:(CGSize)size;
 + (id)trackSPTPlaceholderWithSize:(NSInteger)size;
 + (id)spt_infoViewErrorIcon;
+@end
+
+@interface SPTGLUEImageLoader : NSObject
+- (id)loadImageForURL:(NSURL *)url imageSize:(CGSize)size completion:(id)completiton;
 @end
 
 // Themes
@@ -64,6 +99,10 @@
 - (id)initWithLink:(NSURL *)link collectionPlatform:(id)colPlatform collectionTestManager:(id)colTestManager wasInCollection:(BOOL)inCollection logContext:(id)logContext sourceURL:(NSURL *)sourceURL;
 @end
 
+@interface SPTQueueTrackAction : SPAction
+- (id)initWithTrack:(SPTPlayerTrack *)track player:(SPTPlayerImpl *)player playerQueue:(SPTCosmosPlayerQueue *)queue upsellManager:(id)arg1 logContext:(id)arg2 alertController:(id)alert;
+@end
+
 // Context menu
 @interface SPTContextMenuViewController : UIViewController
 - (id)initWithHeaderImageURL:(id)arg1 entityURL:(id)arg2 imageLoader:(id)arg3 headerView:(id)arg4 modalPresentationController:(id)arg5 logger:(id)arg6 model:(id)arg7 theme:(id)arg8 notificationCenter:(id)arg9;
@@ -100,20 +139,6 @@ authorizationRequester:(id)arg2
 @end
 
 
-// Others
-@interface SPTGLUEImageLoader : NSObject
-- (id)loadImageForURL:(NSURL *)url imageSize:(CGSize)size completion:(id)completiton;
-@end
-
-@interface SPTPlayerTrack : NSObject
-@property (nonatomic, readwrite, assign) NSURL *imageURL;
-@property (nonatomic, readwrite, assign) NSURL *URI;
-+ (id)trackWithURI:(NSURL *)URI;
-- (NSString *)trackTitle;
-- (NSString *)artistTitle;
-- (NSString *)albumTitle;
-@end
-
 // Views and view controllers
 @interface SPTCollectionOverviewNavigationModelEntryImplementation
 - (id)initWithDictionary:(NSDictionary *)dict;
@@ -143,21 +168,4 @@ authorizationRequester:(id)arg2
 
 @interface SPTNowPlayingBarContainerViewController : UIViewController
 - (SPTPlayerTrack *)currentTrack;
-@end
-
-@interface SPTPlayerContext : NSObject
-+ (id)contextForURI:(NSURL *)URI;
-@end
-
-@interface SPTPlayerImpl : NSObject
-- (id)playContext:(id)arg1 options:(id)arg2;
-@end
-
-@interface SPTStatefulPlayerQueue : NSObject
-- (BOOL)isTrack:(SPTPlayerTrack *)track1 equalToTrack:(SPTPlayerTrack *)track2;
-@end
-
-@interface SPTStatefulPlayer : NSObject
-@property (nonatomic, readwrite, assign) SPTPlayerImpl *player;
-@property (nonatomic, readwrite, assign) SPTStatefulPlayerQueue *queue;
 @end

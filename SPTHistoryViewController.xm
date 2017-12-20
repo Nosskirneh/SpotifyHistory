@@ -187,6 +187,16 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
     SPTContextMenuTaskAction *playlistAction = [[%c(SPTContextMenuTaskAction) alloc] init];
     playlistAction.action = toPlaylist;
 
+    SPTPlayerTrack *track = [%c(SPTPlayerTrack) trackWithURI:cell.trackURI];
+    SPTCosmosPlayerQueue *queue = [[%c(SPTCosmosPlayerQueue) alloc] initWithPlayer:self.statefulPlayer.player];
+    SPTQueueTrackAction *toQueue = [[%c(SPTQueueTrackAction) alloc] initWithTrack:track
+                                                                           player:self.statefulPlayer.player
+                                                                      playerQueue:queue
+                                                                    upsellManager:nil
+                                                                       logContext:nil
+                                                                  alertController:[%c(SPTAlertPresenter) sharedInstance]];
+    SPTContextMenuTaskAction *queueAction = [[%c(SPTContextMenuTaskAction) alloc] init];
+    queueAction.action = toQueue;
 
     // Check collection state
     [self.collectionPlatform collectionStateForURL:cell.trackURI completion:^void(NSInteger value) {
@@ -206,7 +216,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         collectionAction.action = collection;
 
         // Create view controller
-        NSArray *actions = [[NSArray alloc] initWithObjects:collectionAction, playlistAction, nil];
+        NSArray *actions = [[NSArray alloc] initWithObjects:collectionAction, playlistAction, queueAction, nil];
 
         SPTContextMenuViewController *vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
                                                                                                     actions:actions
