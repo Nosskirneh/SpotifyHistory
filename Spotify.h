@@ -61,7 +61,6 @@
 @end
 
 @interface SPTCollectionPlatformAddRemoveFromCollectionAction : SPAction
-
 - (id)initWithLink:(NSURL *)link collectionPlatform:(id)colPlatform collectionTestManager:(id)colTestManager wasInCollection:(BOOL)inCollection logContext:(id)logContext sourceURL:(NSURL *)sourceURL;
 @end
 
@@ -85,11 +84,9 @@
 - (void)setShouldShowScannable:(BOOL)show;
 @end
 
-
 @interface SPTAlertPresenter : NSObject
 + (id)sharedInstance;
 @end
-
 
 @interface SPTScannablesContextMenuHeaderView : UIView
 - (id)initWithTitle:(NSString *)title
@@ -117,6 +114,7 @@ authorizationRequester:(id)arg2
 - (NSString *)albumTitle;
 @end
 
+// Views and view controllers
 @interface SPTCollectionOverviewNavigationModelEntryImplementation
 - (id)initWithDictionary:(NSDictionary *)dict;
 @end

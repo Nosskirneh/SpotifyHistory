@@ -145,6 +145,8 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
 }
 
 - (void)showContextMenu:(SPTTrackContextButton *)sender {
+    static NSURL *sourceURL = [NSURL URLWithString:@"spotify:history"];
+
     SPTTrackTableViewCell *cell = sender.cell;
 
     SPTContextMenuOptionsImplementation *options = [[%c(SPTContextMenuOptionsImplementation) alloc] init];
@@ -153,7 +155,25 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
     SPTContextMenuModel *model = [[%c(SPTContextMenuModel) alloc] initWithOptions:options player:self.statefulPlayer.player];
     GLUETheme *theme = [%c(GLUETheme) themeWithSPTTheme:[%c(SPTTheme) catTheme]];
 
-    NSURL *sourceURL = [NSURL URLWithString:@"spotify:history"];
+    // Create headerView
+    SPTScannablesDependencies *dependencies = [[%c(SPTScannablesDependencies) alloc] initWithSpotifyApplication:[UIApplication sharedApplication]
+                                                                                                 linkDispatcher:self.linkDispatcher
+                                                                                                         device:[UIDevice currentDevice]
+                                                                                                          theme:[%c(SPTTheme) catTheme]
+                                                                                                    testManager:self.scannablesTestManager
+                                                                                                         logger:nil];
+
+    NSString *subtitle = [NSString stringWithFormat:@"%@ • %@", cell.artist, cell.album];
+    SPTScannablesContextMenuHeaderView *headerView = [[%c(SPTScannablesContextMenuHeaderView) alloc] initWithTitle:cell.trackName
+                                                                                                          subtitle:subtitle
+                                                                                                         entityURL:cell.trackURI
+                                                                                                        dataSource:nil
+                                                                                               onboardingPresenter:nil
+                                                                                            authorizationRequester:nil
+                                                                                                      dependencies:dependencies
+                                                                                                   alertController:[%c(SPTAlertPresenter) sharedInstance]];
+
+    HBLogDebug(@"headerView: %@", headerView);
 
     // Build actions
     SPTAddToPlaylistAction *toPlaylist = [[%c(SPTAddToPlaylistAction) alloc] initWithTrackURLs:@[cell.trackURI]
@@ -168,6 +188,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
     playlistAction.action = toPlaylist;
 
 
+    // Check collection state
     [self.collectionPlatform collectionStateForURL:cell.trackURI completion:^void(NSInteger value) {
         BOOL inCollection = NO;
         if (value == inCollectionEnum) {
@@ -184,28 +205,8 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         SPTContextMenuTaskAction *collectionAction = [[%c(SPTContextMenuTaskAction) alloc] init];
         collectionAction.action = collection;
 
+        // Create view controller
         NSArray *actions = [[NSArray alloc] initWithObjects:collectionAction, playlistAction, nil];
-
-        SPTScannablesDependencies *dependencies = [[%c(SPTScannablesDependencies) alloc] initWithSpotifyApplication:[UIApplication sharedApplication]
-                                                                                                     linkDispatcher:self.linkDispatcher
-                                                                                                             device:[UIDevice currentDevice]
-                                                                                                              theme:[%c(SPTTheme) catTheme]
-                                                                                                        testManager:self.scannablesTestManager
-                                                                                                             logger:nil];
-
-        HBLogDebug(@"dependencies: %@", dependencies);
-
-        NSString *subtitle = [NSString stringWithFormat:@"%@ • %@", cell.artist, cell.album];
-        SPTScannablesContextMenuHeaderView *headerView = [[%c(SPTScannablesContextMenuHeaderView) alloc] initWithTitle:cell.trackName
-                                                                                                              subtitle:subtitle
-                                                                                                             entityURL:cell.trackURI
-                                                                                                            dataSource:nil
-                                                                                                   onboardingPresenter:nil
-                                                                                                authorizationRequester:nil
-                                                                                                          dependencies:dependencies
-                                                                                                       alertController:[%c(SPTAlertPresenter) sharedInstance]];
-
-        HBLogDebug(@"headerView: %@", headerView);
 
         SPTContextMenuViewController *vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
                                                                                                     actions:actions
@@ -217,8 +218,6 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
                                                                                                       model:model
                                                                                                       theme:theme
                                                                                          notificationCenter:[NSNotificationCenter defaultCenter]];
-
-        //[vc.view addSubview:headerView];
 
         [self.modalPresentationController presentViewController:vc animated:YES completion:nil];
     }];

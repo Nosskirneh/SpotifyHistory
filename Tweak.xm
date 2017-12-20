@@ -152,6 +152,8 @@ static CGFloat npBarHeight;
 %end
 
 
+// Even though only the SPTPlayerImpl is needed, I'm hooking this since
+// this init method seems far less likely to change.
 %hook SPTStatefulPlayer
 
 - (id)initWithPlayer:(id)player {
