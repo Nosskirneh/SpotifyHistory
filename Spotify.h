@@ -189,4 +189,6 @@ authorizationRequester:(id)arg2
 
 @interface SPTNowPlayingBarContainerViewController : UIViewController
 - (SPTPlayerTrack *)currentTrack;
+- (NSDictionary *)exportTrack;
 @end
+

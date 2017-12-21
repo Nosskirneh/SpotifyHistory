@@ -110,18 +110,21 @@ static CGFloat npBarHeight;
 %end
 
 
-// Used to get images
-%hook SPTGLUEImageLoader
-
-- (id)initWithImageLoader:(id)arg sourceIdentifier:(id)arg2 {
-    return imageLoader ? %orig : imageLoader = %orig;
-}
-
-%end
-
-
 // Add previous track to history
 %hook SPTNowPlayingBarContainerViewController
+
+%new
+- (NSDictionary *)exportTrack {
+    NSMutableDictionary *tr = [NSMutableDictionary new];
+    tr[@"imageURL"] = self.currentTrack.imageURL.absoluteString;
+    tr[@"URI"] = self.currentTrack.URI.absoluteString;
+    tr[@"name"] = self.currentTrack.trackTitle;
+    tr[@"artist"] = self.currentTrack.artistTitle;
+    tr[@"artistURI"] = self.currentTrack.artistURI.absoluteString;
+    tr[@"album"] = self.currentTrack.albumTitle;
+    tr[@"albumURI"] = self.currentTrack.albumURI.absoluteString;
+    return tr;
+}
 
 - (void)setCurrentTrack:(SPTPlayerTrack *)track {
     // This has to be static on method level, simply adding
@@ -129,38 +132,36 @@ static CGFloat npBarHeight;
     // scope results in some memory shenanigans and will crash
     static double timestampLastTrackChange;
 
-    if (self.currentTrack && ![statefulPlayer.queue isTrack:self.currentTrack equalToTrack:track] &&
-        timestampLastTrackChange) {
+    // Prevent timer from resetting when saving to/removing from collection
+    if ([statefulPlayer.queue isTrack:self.currentTrack equalToTrack:track]) {
+        return %orig;
+    }
+
+    if (self.currentTrack && timestampLastTrackChange) {
         double current = [[NSDate date] timeIntervalSince1970];
         HBLogDebug(@"diff: %f", current - timestampLastTrackChange);
         if (current - timestampLastTrackChange > 10) {
             // Save previously track to history
-            NSMutableDictionary *tr = [NSMutableDictionary new];
-            tr[@"imageURL"] = self.currentTrack.imageURL.absoluteString;
-            tr[@"URI"] = self.currentTrack.URI.absoluteString;
-            tr[@"name"] = self.currentTrack.trackTitle;
-            tr[@"artist"] = self.currentTrack.artistTitle;
-            tr[@"artistURI"] = self.currentTrack.artistURI.absoluteString;
-            tr[@"album"] = self.currentTrack.albumTitle;
-            tr[@"albumURI"] = self.currentTrack.albumURI.absoluteString;
 
             NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
             if (!prefs) {
                 prefs = [[NSMutableDictionary alloc] init];
             }
 
-            NSArray *tracks;
-            if (!prefs[kTracks]) {
-                tracks = [[NSArray alloc] initWithObjects:tr, nil];
-            } else {
+            NSDictionary *tr = [self exportTrack];
+
+            NSArray<NSDictionary *> *tracks;
+            if (prefs[kTracks]) {
                 tracks = prefs[kTracks];
-                // Duplicate?
-                if ([((NSDictionary *)[tracks firstObject])[@"imageURL"] isEqualToString:tr[@"imageURL"]]) {
+                // Compare last history item to now playing - are they the same?
+                if ([[tracks firstObject][@"trackURI"] isEqualToString:tr[@"trackURI"]]) {
                     goto updateTimer; // "break" from if statement - do not add track
                 }
                 NSMutableArray *newTracks = [tracks mutableCopy];
                 [newTracks insertObject:tr atIndex:0];
                 tracks = newTracks;
+            } else {
+                tracks = [[NSArray alloc] initWithObjects:tr, nil];
             }
 
             prefs[kTracks] = tracks;
@@ -170,11 +171,23 @@ static CGFloat npBarHeight;
         }
     }
 
-    updateTimer:
     // Save timestamp when changing to this track
+    updateTimer:
     timestampLastTrackChange = [[NSDate date] timeIntervalSince1970];
 
     %orig;
+}
+
+%end
+
+
+/* Get references to object */
+
+// Used to fetch images in list
+%hook SPTGLUEImageLoader
+
+- (id)initWithImageLoader:(id)arg sourceIdentifier:(id)arg2 {
+    return imageLoader ? %orig : imageLoader = %orig;
 }
 
 %end
@@ -237,7 +250,7 @@ static CGFloat npBarHeight;
          collectionTestManager:(id)arg3
             metaViewController:(id)arg4
                alertController:(id)arg5 {
-    return collectionPlatform ? %orig : collectionPlatform = %orig;
+    return collectionPlatform = %orig;
 }
 
 %end
@@ -246,7 +259,10 @@ static CGFloat npBarHeight;
 // Used to load the header view of the context menu
 %hook SPTScannablesTestManagerImplementation
 
-- (id)initWithFeatureFlags:(id)arg1 featureSettingsItemFactory:(id)arg2 localSettings:(id)arg3 alertController:(id)arg4 {
+- (id)initWithFeatureFlags:(id)arg1
+featureSettingsItemFactory:(id)arg2
+             localSettings:(id)arg3
+           alertController:(id)arg4 {
     return scannablesTestManager = %orig;
 }
 
