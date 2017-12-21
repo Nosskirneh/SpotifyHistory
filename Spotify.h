@@ -1,6 +1,9 @@
 #define inCollectionEnum 0
 #define notInCollectionEnum 2
 
+#define isAvailableOffline 3
+#define isNotAvailableOffline 0
+
 // Data objects
 @interface SPTPlayerTrack : NSObject
 @property (nonatomic, readwrite, assign) NSURL *imageURL;
@@ -192,3 +195,15 @@ authorizationRequester:(id)arg2
 - (NSDictionary *)exportTrack;
 @end
 
+
+
+
+
+@interface SPTOfflineManager : NSObject
+- (NSInteger)stateForTrackWithURL:(NSURL *)URL;
+@end
+
+@interface SPSession : NSObject
+@property(nonatomic, readwrite, assign) SPTOfflineManager *offlineManager;
+@property(nonatomic, readwrite, assign) BOOL *isOffline;
+@end

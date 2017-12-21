@@ -8,6 +8,7 @@
 @property (nonatomic, strong) NSString *album;
 @property (nonatomic, strong) NSURL *artistURI;
 @property (nonatomic, strong) NSURL *albumURI;
+@property (nonatomic, strong) SPSession *session;
 @end
 
 @interface SPTTrackContextButton : UIButton
@@ -51,7 +52,8 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         collectionPlatform:(SPTCollectionPlatformImplementation *)collectionPlatform
             linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
      scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
-              radioManager:(SPTRadioManager *)radioManager {
+              radioManager:(SPTRadioManager *)radioManager
+                   session:(SPSession *)session {
     if (self = [super init]) {
         self.prefs = prefs;
         self.nowPlayingBarHeight = height;
@@ -64,6 +66,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         self.linkDispatcher = linkDispatcher;
         self.scannablesTestManager = scannablesTestManager;
         self.radioManager = radioManager;
+        self.session = session;
 
         self.navigationItem = [[UINavigationItem alloc] initWithTitle:@"History"];
     }
@@ -92,6 +95,8 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
     if (cell == nil) {
         cell = [[%c(SPTTrackTableViewCell) alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Standard"];
     }
+
+    cell.session = self.session;
 
     NSArray *tracks = self.prefs[kTracks];
     NSDictionary *track = tracks[indexPath.row];
@@ -202,7 +207,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
                                                                   alertController:[%c(SPTAlertPresenter) sharedInstance]];
     // Start radio
     SPTStartRadioAction *toRadio = [[%c(SPTStartRadioAction) alloc] initWithSeedURL:cell.trackURI
-                                                                            session:nil
+                                                                            session:self.session
                                                                        radioManager:self.radioManager
                                                                          logContext:nil];
 

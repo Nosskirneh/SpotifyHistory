@@ -10,6 +10,7 @@ static PlaylistFeatureImplementation *playlistFeature;
 static SPTCollectionPlatformImplementation *collectionPlatform;
 static SPTScannablesTestManagerImplementation *scannablesTestManager;
 static SPTRadioManager *radioManager;
+static SPSession *session;
 
 
 // Help methods to create a context actions
@@ -96,7 +97,8 @@ static CGFloat npBarHeight;
                                                     collectionPlatform:collectionPlatform
                                                         linkDispatcher:self.linkDispatcher
                                                  scannablesTestManager:scannablesTestManager
-                                                          radioManager:radioManager];
+                                                          radioManager:radioManager
+                                                               session:session];
         }
 
         [self.navigationController pushViewControllerOnTopOfTheNavigationStack:vc animated:YES];
@@ -274,6 +276,16 @@ featureSettingsItemFactory:(id)arg2
 
 - (id)initWithLocalSettings:(id)arg1 abba:(id)arg2 productState:(id)arg3 {
     return radioManager = %orig;
+}
+
+%end
+
+
+// Used to check offline mode
+%hook SPSession
+
+- (id)initWithCore:(id)arg1 coreCreateOptions:(id)arg2 isPerfTracingEnabled:(id)arg3 core:(id)arg4 session:(id)arg5 accesspointHandler:(id)arg6 coreTime:(id)arg7 connectivityManager:(id)arg8 scheduler:(id)arg9 clientVersionString:(id)arg10 acceptLanguages:(id)arg11 {
+    return session = %orig;
 }
 
 %end

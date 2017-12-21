@@ -16,6 +16,7 @@
 @property (nonatomic, strong) SPTLinkDispatcherImplementation *linkDispatcher;
 @property (nonatomic, strong) SPTScannablesTestManagerImplementation *scannablesTestManager;
 @property (nonatomic, strong) SPTRadioManager *radioManager;
+@property (nonatomic, strong) SPSession *session;
 @property (nonatomic, strong) UINavigationItem *navigationItem;
 - (id)initWithPreferences:(NSDictionary *)prefs
       nowPlayingBarHeight:(CGFloat)height
@@ -27,5 +28,6 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         collectionPlatform:(SPTCollectionPlatformImplementation *)collectionPlatform
             linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
      scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
-     		  radioManager:(SPTRadioManager *)radioManager;
+     		  radioManager:(SPTRadioManager *)radioManager
+                   session:(SPSession *)session;
 @end
