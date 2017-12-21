@@ -34,6 +34,12 @@
                                             self.detailTextLabel.frame.origin.y,
                                             self.frame.size.width - 140,
                                             self.detailTextLabel.frame.size.height);
+
+    // Set lower alpha on tracks not available offline
+    NSInteger offlineState = [self.session.offlineManager stateForTrackWithURL:self.trackURI];
+    if ([self.session isOffline] && offlineState == isNotAvailableOffline) {
+        self.alpha = 0.4;
+    }
 }
 
 @end
