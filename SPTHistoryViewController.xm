@@ -59,7 +59,8 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
             linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
      scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
               radioManager:(SPTRadioManager *)radioManager
-                   session:(SPSession *)session {
+                   session:(SPSession *)session
+         dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory {
     if (self = [super init]) {
         self.prefs = prefs;
         self.nowPlayingBarHeight = height;
@@ -73,6 +74,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         self.scannablesTestManager = scannablesTestManager;
         self.radioManager = radioManager;
         self.session = session;
+        self.dataLoaderFactory = dataLoaderFactory;
 
         self.navigationItem = [[UINavigationItem alloc] initWithTitle:@"History"];
 
@@ -188,10 +190,14 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
                                                                                                          logger:nil];
 
     NSString *subtitle = [NSString stringWithFormat:@"%@ • %@", cell.artist, cell.album];
+    SPTDataLoaderCancellationTokenFactoryImplementation *cancelFact = [[%c(SPTDataLoaderCancellationTokenFactoryImplementation) alloc] init];
+    SPTDataLoader *dataLoader = [%c(SPTDataLoader) dataLoaderWithRequestResponseHandlerDelegate:self.dataLoaderFactory
+                                                                       cancellationTokenFactory:cancelFact];
+    SPTScannablesRemoteDataSource *dataSource = [[%c(SPTScannablesRemoteDataSource) alloc] initWithDataLoader:dataLoader];
     SPTScannablesContextMenuHeaderView *headerView = [[%c(SPTScannablesContextMenuHeaderView) alloc] initWithTitle:cell.trackName
                                                                                                           subtitle:subtitle
                                                                                                          entityURL:cell.trackURI
-                                                                                                        dataSource:nil
+                                                                                                        dataSource:dataSource
                                                                                                onboardingPresenter:nil
                                                                                             authorizationRequester:nil
                                                                                                       dependencies:dependencies

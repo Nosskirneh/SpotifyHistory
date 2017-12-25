@@ -40,6 +40,33 @@
 @interface SPTRadioManager : NSObject
 @end
 
+@interface SPTOfflineManager : NSObject
+- (NSInteger)stateForTrackWithURL:(NSURL *)URL;
+@end
+
+@interface SPTOfflineModeNotifier : NSObject
+- (void)addOfflineModeObserver:(id)arg;
+- (void)removeOfflineModeObserver:(id)arg;
+@end
+
+@interface SPSession : NSObject
+@property(nonatomic, readwrite, assign) SPTOfflineManager *offlineManager;
+@property(nonatomic, readwrite, assign) SPTOfflineModeNotifier *offlineNotifier;
+@property(nonatomic, readwrite, assign) BOOL *isOffline;
+@end
+
+@interface SPTDataLoaderFactory : NSObject
+@end
+
+@interface SPTDataLoader : NSObject
++ (id)dataLoaderWithRequestResponseHandlerDelegate:(id)arg1 cancellationTokenFactory:(id)arg2;
+@end
+
+@interface SPTScannablesRemoteDataSource : NSObject
+- (id)initWithDataLoader:(id)arg;
+@end
+
+
 
 // Images
 @interface UIImage (spt)
@@ -194,23 +221,4 @@ authorizationRequester:(id)arg2
 @interface SPTNowPlayingBarContainerViewController : UIViewController
 - (SPTPlayerTrack *)currentTrack;
 - (NSDictionary *)exportTrack;
-@end
-
-
-
-
-
-@interface SPTOfflineManager : NSObject
-- (NSInteger)stateForTrackWithURL:(NSURL *)URL;
-@end
-
-@interface SPTOfflineModeNotifier : NSObject
-- (void)addOfflineModeObserver:(id)arg;
-- (void)removeOfflineModeObserver:(id)arg;
-@end
-
-@interface SPSession : NSObject
-@property(nonatomic, readwrite, assign) SPTOfflineManager *offlineManager;
-@property(nonatomic, readwrite, assign) SPTOfflineModeNotifier *offlineNotifier;
-@property(nonatomic, readwrite, assign) BOOL *isOffline;
 @end

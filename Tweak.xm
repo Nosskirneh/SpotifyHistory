@@ -11,6 +11,7 @@ static SPTCollectionPlatformImplementation *collectionPlatform;
 static SPTScannablesTestManagerImplementation *scannablesTestManager;
 static SPTRadioManager *radioManager;
 extern SPSession *session;
+static SPTDataLoaderFactory *dataLoaderFactory;
 
 
 // Help methods to create a context actions
@@ -98,7 +99,8 @@ static CGFloat npBarHeight;
                                                         linkDispatcher:self.linkDispatcher
                                                  scannablesTestManager:scannablesTestManager
                                                           radioManager:radioManager
-                                                               session:session];
+                                                               session:session
+                                                     dataLoaderFactory:dataLoaderFactory];
         }
 
         [self.navigationController pushViewControllerOnTopOfTheNavigationStack:vc animated:YES];
@@ -281,8 +283,12 @@ featureSettingsItemFactory:(id)arg2
 %end
 
 
+// Used to fetch images and bar code in context menus
+%hook SPTDataLoaderFactory
 
++ (id)dataLoaderFactoryWithRequestResponseHandlerDelegate:(id)arg1 authorisers:(id)arg2 {
+    %log;
+    return dataLoaderFactory = %orig;
 }
 
 %end
-
