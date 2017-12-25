@@ -164,7 +164,7 @@ collectionTestManager:(id)colTestManager
           creatorName:(NSString *)artist
            sourceName:(NSString *)album
              imageURL:(NSURL *)imageURL
-            sourceURL:(NSURL *)sourceURL
+            sourceUrl:(NSURL *)sourceUrl
             shareType:(NSUInteger)type
    clipboardLinkTitle:(NSString *)text
               session:(SPSession *)session
