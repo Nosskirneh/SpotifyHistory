@@ -131,6 +131,7 @@
 @interface SPTContextMenuViewController : UIViewController
 - (id)initWithHeaderImageURL:(id)arg1 entityURL:(id)arg2 imageLoader:(id)arg3 headerView:(id)arg4 modalPresentationController:(id)arg5 logger:(id)arg6 model:(id)arg7 theme:(id)arg8 notificationCenter:(id)arg9;
 - (id)initWithHeaderImageURL:(id)arg1 actions:(id)arg2 entityURL:(id)arg3 imageLoader:(id)arg4 headerView:(id)arg5 modalPresentationController:(id)arg6 logger:(id)arg7 model:(id)arg8 theme:(id)arg9 notificationCenter:(id)arg10;
+- (id)initWithHeaderImageURL:(id)arg1 actions:(id)arg2 entityURL:(id)arg3 imageLoader:(id)arg4 headerView:(id)arg5 modalPresentationController:(id)arg6 model:(id)arg7 theme:(id)arg8 notificationCenter:(id)arg9;
 @end
 
 @interface SPTContextMenuTaskAction : NSObject

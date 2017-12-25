@@ -254,16 +254,31 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         /* Create view controller */
         NSArray *actions = [%c(SPTContextMenuTaskAction) actionsWithActions:@[toCollection, toPlaylist, toQueue, toRadio, toArtist, toAlbum]];
 
-        SPTContextMenuViewController *vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
-                                                                                                    actions:actions
-                                                                                                  entityURL:cell.trackURI
-                                                                                                imageLoader:self.contextImageLoader
-                                                                                                 headerView:headerView
-                                                                                modalPresentationController:self.modalPresentationController
-                                                                                                     logger:nil
-                                                                                                      model:model
-                                                                                                      theme:theme
-                                                                                         notificationCenter:[NSNotificationCenter defaultCenter]];
+        SPTContextMenuViewController *vc = nil;
+        if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:actions:entityURL:imageLoader:headerView:modalPresentationController:logger:model:theme:notificationCenter:)]) {
+            // Earlier than 8.4.34
+            vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
+                                                                          actions:actions
+                                                                        entityURL:cell.trackURI
+                                                                      imageLoader:self.contextImageLoader
+                                                                       headerView:headerView
+                                                      modalPresentationController:self.modalPresentationController
+                                                                           logger:nil
+                                                                            model:model
+                                                                            theme:theme
+                                                               notificationCenter:[NSNotificationCenter defaultCenter]];
+        } else if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:actions:entityURL:imageLoader:headerView:modalPresentationController:model:theme:notificationCenter:)]) {
+            // 8.4.34
+            vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
+                                                                          actions:actions
+                                                                        entityURL:cell.trackURI
+                                                                      imageLoader:self.contextImageLoader
+                                                                       headerView:headerView
+                                                      modalPresentationController:self.modalPresentationController
+                                                                            model:model
+                                                                            theme:theme
+                                                               notificationCenter:[NSNotificationCenter defaultCenter]];
+        }
 
         [self.modalPresentationController presentViewController:vc animated:YES completion:nil];
     }];
