@@ -241,7 +241,7 @@ authorizationRequester:(id)arg2
 
 
 // Views and view controllers
-@interface SPTCollectionOverviewNavigationModelEntryImplementation
+@interface SPTCollectionOverviewNavigationModelEntryImplementation : NSObject
 - (id)initWithDictionary:(NSDictionary *)dict;
 @end
 

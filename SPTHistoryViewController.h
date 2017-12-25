@@ -6,20 +6,20 @@
 @interface SPTHistoryViewController : UITableViewController
 @property (nonatomic, strong) SPTTableView *view;
 @property (nonatomic, strong) NSDictionary *prefs;
-@property (nonatomic, strong) SPTGLUEImageLoader *imageLoader;
-@property (nonatomic, strong) SPTStatefulPlayer *statefulPlayer;
+@property (nonatomic, assign) SPTGLUEImageLoader *imageLoader;
+@property (nonatomic, assign) SPTStatefulPlayer *statefulPlayer;
 @property (nonatomic) CGFloat nowPlayingBarHeight;
-@property (nonatomic, strong) SPTModalPresentationControllerImplementation *modalPresentationController;
-@property (nonatomic, strong) SPTImageLoaderImplementation *contextImageLoader;
-@property (nonatomic, strong) PlaylistFeatureImplementation *playlistFeature;
-@property (nonatomic, strong) SPTCollectionPlatformImplementation *collectionPlatform;
-@property (nonatomic, strong) SPTLinkDispatcherImplementation *linkDispatcher;
-@property (nonatomic, strong) SPTScannablesTestManagerImplementation *scannablesTestManager;
-@property (nonatomic, strong) SPTRadioManager *radioManager;
-@property (nonatomic, strong) SPSession *session;
-@property (nonatomic, strong) SPTDataLoaderFactory *dataLoaderFactory;
-@property (nonatomic, strong) SPTShareFeatureImplementation *shareFeature;
-@property (nonatomic, strong) UINavigationItem *navigationItem;
+@property (nonatomic, assign) SPTModalPresentationControllerImplementation *modalPresentationController;
+@property (nonatomic, assign) SPTImageLoaderImplementation *contextImageLoader;
+@property (nonatomic, assign) PlaylistFeatureImplementation *playlistFeature;
+@property (nonatomic, assign) SPTCollectionPlatformImplementation *collectionPlatform;
+@property (nonatomic, assign) SPTLinkDispatcherImplementation *linkDispatcher;
+@property (nonatomic, assign) SPTScannablesTestManagerImplementation *scannablesTestManager;
+@property (nonatomic, assign) SPTRadioManager *radioManager;
+@property (nonatomic, assign) SPSession *session;
+@property (nonatomic, assign) SPTDataLoaderFactory *dataLoaderFactory;
+@property (nonatomic, assign) SPTShareFeatureImplementation *shareFeature;
+@property (nonatomic, assign) UINavigationItem *navigationItem;
 - (id)initWithPreferences:(NSDictionary *)prefs
       nowPlayingBarHeight:(CGFloat)height
               imageLoader:(SPTGLUEImageLoader *)imageLoader
