@@ -83,6 +83,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
 }
 
 - (void)dealloc {
+    [super dealloc];
     [self.session.offlineNotifier removeOfflineModeObserver:self];
 }
 
