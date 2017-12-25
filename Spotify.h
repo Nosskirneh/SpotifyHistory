@@ -143,6 +143,17 @@
 @end
 
 @interface SPTShareAction : SPAction
+- (id)initWithItemURL:(NSURL *)itemURL
+             itemName:(NSString *)name
+          creatorName:(NSString *)artist
+           sourceName:(NSString *)album
+             imageURL:(NSURL *)imageURL
+            sourceURL:(NSURL *)sourceURL
+            shareType:(NSUInteger)type
+   clipboardLinkTitle:(NSString *)text
+              session:(SPSession *)session
+         shareFeature:(SPTShareFeatureImplementation *)shareFeature
+           logContext:(id)log;
 @end
 
 @interface SPTStartRadioAction : SPAction
