@@ -3,8 +3,7 @@ TARGET = iphone:clang:9.2
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = SpotifyHistory
-SpotifyHistory_FILES = Tweak.xm Tweak_noARC.xm SPTHistoryViewController.xm SPTEmptyHistoryViewController.xm
-Tweak.xm_CFLAGS = -fobjc-arc
+SpotifyHistory_FILES = Tweak.xm SPTHistoryViewController.xm SPTEmptyHistoryViewController.xm
 SPTHistoryViewController_CFLAGS = -fobjc-arc
 SPTEmptyHistoryViewController_CFLAGS = -fobjc-arc
 

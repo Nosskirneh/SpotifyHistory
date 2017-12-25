@@ -10,7 +10,7 @@ static PlaylistFeatureImplementation *playlistFeature;
 static SPTCollectionPlatformImplementation *collectionPlatform;
 static SPTScannablesTestManagerImplementation *scannablesTestManager;
 static SPTRadioManager *radioManager;
-extern SPSession *session;
+static SPSession *session;
 static SPTDataLoaderFactory *dataLoaderFactory;
 static SPTShareFeatureImplementation *shareFeature;
 
@@ -54,6 +54,7 @@ static SPTShareFeatureImplementation *shareFeature;
 
     SPTCollectionOverviewNavigationModelEntryImplementation *historyNavEntry = [[%c(SPTCollectionOverviewNavigationModelEntryImplementation) alloc] initWithDictionary:HISTORY_ENTRY_DICT];
     [self.navigationItems addObject:historyNavEntry];
+    [historyNavEntry release];
 }
 
 %end
@@ -107,6 +108,8 @@ static CGFloat npBarHeight;
 
         [self.navigationController pushViewControllerOnTopOfTheNavigationStack:vc animated:YES];
         [table deselectRowAtIndexPath:indexPath animated:NO];
+
+        [prefs release];
         return;
     }
 
@@ -170,10 +173,14 @@ static CGFloat npBarHeight;
                 tracks = [[NSArray alloc] initWithObjects:tr, nil];
             }
 
+            [tr release];
+
             prefs[kTracks] = tracks;
+            [tracks release];
             if (![prefs writeToFile:prefPath atomically:YES]) {
                 HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
             }
+            [prefs release];
         }
     }
 
@@ -301,3 +308,39 @@ featureSettingsItemFactory:(id)arg2
 }
 
 %end
+
+
+// Used to check offline mode
+%group SPSession_8433
+// Earlier than 8.4.34
+%hook SPSession
+
+- (id)initWithCore:(id)arg1 coreCreateOptions:(id)arg2 isPerfTracingEnabled:(id)arg3 core:(id)arg4 session:(id)arg5 accesspointHandler:(id)arg6 coreTime:(id)arg7 connectivityManager:(id)arg8 scheduler:(id)arg9 clientVersionString:(id)arg10 acceptLanguages:(id)arg11 {
+    return session = %orig;
+}
+
+%end
+%end
+
+// 8.4.34
+%group SPSession_8434
+%hook SPSession
+
+- (id)initWithCore:(id)arg1 coreCreateOptions:(id)arg2 isPerfTracingEnabled:(id)arg3 core:(id)arg4 session:(id)arg5 accesspointHandler:(id)arg6 serverTime:(id)arg7 connectivityManager:(id)arg8 scheduler:(id)arg9 clientVersionString:(id)arg10 acceptLanguages:(id)arg11 {
+    //HBLogDebug(@"init");
+    return session = %orig;
+}
+
+%end
+%end
+
+
+%ctor {
+    %init();
+
+    if ([%c(SPSession) instancesRespondToSelector:@selector(initWithCore:coreCreateOptions:isPerfTracingEnabled:core:session:accesspointHandler:serverTime:connectivityManager:scheduler:clientVersionString:acceptLanguages:)]) {
+        %init(SPSession_8434);
+    } else if ([%c(SPSession) instancesRespondToSelector:@selector(initWithCore:coreCreateOptions:isPerfTracingEnabled:core:session:accesspointHandler:coreTime:connectivityManager:scheduler:clientVersionString:acceptLanguages:)]) {
+        %init(SPSession_8433);
+    }
+}
