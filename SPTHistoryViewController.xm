@@ -53,14 +53,14 @@
               imageLoader:(SPTGLUEImageLoader *)imageLoader
            statefulPlayer:(SPTStatefulPlayer *)statefulPlayer
 modalPresentationController:(SPTModalPresentationControllerImplementation *)modalPresentationController
-        contextImageLoader:(SPTImageLoaderImplementation *)contextImageLoader
-           playlistFeature:(PlaylistFeatureImplementation *)playlistFeature
-        collectionPlatform:(SPTCollectionPlatformImplementation *)collectionPlatform
-            linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
-     scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
-              radioManager:(SPTRadioManager *)radioManager
-                   session:(SPSession *)session
-         dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory {
+       contextImageLoader:(SPTImageLoaderImplementation *)contextImageLoader
+          playlistFeature:(PlaylistFeatureImplementation *)playlistFeature
+       collectionPlatform:(SPTCollectionPlatformImplementation *)collectionPlatform
+           linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
+    scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
+             radioManager:(SPTRadioManager *)radioManager
+                  session:(SPSession *)session
+        dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory
               shareFeature:(SPTShareFeatureImplementation *)shareFeature {
     if (self = [super init]) {
         self.prefs = prefs;

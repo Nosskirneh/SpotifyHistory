@@ -284,12 +284,10 @@ featureSettingsItemFactory:(id)arg2
 
 %end
 
-
 // Used to fetch images and bar code in context menus
 %hook SPTDataLoaderFactory
 
 + (id)dataLoaderFactoryWithRequestResponseHandlerDelegate:(id)arg1 authorisers:(id)arg2 {
-    %log;
     return dataLoaderFactory = %orig;
 }
 
