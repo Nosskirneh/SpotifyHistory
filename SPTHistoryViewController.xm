@@ -75,9 +75,15 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         self.session = session;
 
         self.navigationItem = [[UINavigationItem alloc] initWithTitle:@"History"];
+
+        [self.session.offlineNotifier addOfflineModeObserver:self];
     }
 
     return self;
+}
+
+- (void)dealloc {
+    [self.session.offlineNotifier removeOfflineModeObserver:self];
 }
 
 - (void)loadView {
@@ -272,6 +278,18 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
 
 - (CGFloat)tableView:(UITableView *)table heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return 64;
+}
+
+- (void)offlineModeState:(id)arg updated:(BOOL)offline {
+    for (SPTTrackTableViewCell *cell in self.view.visibleCells) {
+        float alpha = 1;
+
+        NSInteger offlineState = [self.session.offlineManager stateForTrackWithURL:cell.trackURI];
+        if (offline && offlineState == isNotAvailableOffline) {
+            alpha = 0.4;
+        }
+        cell.alpha = alpha;
+    }
 }
 
 @end

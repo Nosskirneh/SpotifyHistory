@@ -203,7 +203,13 @@ authorizationRequester:(id)arg2
 - (NSInteger)stateForTrackWithURL:(NSURL *)URL;
 @end
 
+@interface SPTOfflineModeNotifier : NSObject
+- (void)addOfflineModeObserver:(id)arg;
+- (void)removeOfflineModeObserver:(id)arg;
+@end
+
 @interface SPSession : NSObject
 @property(nonatomic, readwrite, assign) SPTOfflineManager *offlineManager;
+@property(nonatomic, readwrite, assign) SPTOfflineModeNotifier *offlineNotifier;
 @property(nonatomic, readwrite, assign) BOOL *isOffline;
 @end
