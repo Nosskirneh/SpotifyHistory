@@ -61,6 +61,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
               radioManager:(SPTRadioManager *)radioManager
                    session:(SPSession *)session
          dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory {
+              shareFeature:(SPTShareFeatureImplementation *)shareFeature {
     if (self = [super init]) {
         self.prefs = prefs;
         self.nowPlayingBarHeight = height;
@@ -75,6 +76,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         self.radioManager = radioManager;
         self.session = session;
         self.dataLoaderFactory = dataLoaderFactory;
+        self.shareFeature = shareFeature;
 
         self.navigationItem = [[UINavigationItem alloc] initWithTitle:@"History"];
 
@@ -230,6 +232,19 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
                                                                        radioManager:self.radioManager
                                                                          logContext:nil];
 
+    // Share
+    SPTShareAction *toShare = [[%c(SPTShareAction) alloc] initWithItemURL:cell.trackURI
+                                                                 itemName:cell.trackName
+                                                              creatorName:cell.artist
+                                                               sourceName:cell.album
+                                                                 imageURL:cell.imageURL
+                                                                sourceUrl:cell.trackURI
+                                                                shareType:3
+                                                       clipboardLinkTitle:nil
+                                                                  session:self.session
+                                                             shareFeature:self.shareFeature
+                                                               logContext:nil];
+
     // Go to artist
     SPTGoToURLAction *toArtist = [[%c(SPTGoToURLAction) alloc] initWithURL:cell.artistURI
                                                                      title:@"View Artist"
@@ -259,7 +274,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
 
 
         /* Create view controller */
-        NSArray *actions = [%c(SPTContextMenuTaskAction) actionsWithActions:@[toCollection, toPlaylist, toQueue, toRadio, toArtist, toAlbum]];
+        NSArray *actions = [%c(SPTContextMenuTaskAction) actionsWithActions:@[toCollection, toPlaylist, toQueue, toShare, toRadio, toArtist, toAlbum]];
 
         SPTContextMenuViewController *vc = nil;
         if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:actions:entityURL:imageLoader:headerView:modalPresentationController:logger:model:theme:notificationCenter:)]) {

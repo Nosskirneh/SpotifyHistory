@@ -12,6 +12,7 @@ static SPTScannablesTestManagerImplementation *scannablesTestManager;
 static SPTRadioManager *radioManager;
 extern SPSession *session;
 static SPTDataLoaderFactory *dataLoaderFactory;
+static SPTShareFeatureImplementation *shareFeature;
 
 
 // Help methods to create a context actions
@@ -100,7 +101,8 @@ static CGFloat npBarHeight;
                                                  scannablesTestManager:scannablesTestManager
                                                           radioManager:radioManager
                                                                session:session
-                                                     dataLoaderFactory:dataLoaderFactory];
+                                                     dataLoaderFactory:dataLoaderFactory
+                                                          shareFeature:shareFeature];
         }
 
         [self.navigationController pushViewControllerOnTopOfTheNavigationStack:vc animated:YES];
@@ -292,3 +294,13 @@ featureSettingsItemFactory:(id)arg2
 }
 
 %end
+
+
+%hook SPTShareFeatureImplementation
+
+- (id)init {
+    return shareFeature = %orig;
+}
+
+%end
+

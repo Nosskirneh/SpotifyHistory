@@ -100,6 +100,9 @@
 @interface PlaylistFeatureImplementation : NSObject
 @end
 
+@interface SPTShareFeatureImplementation : NSObject
+@end
+
 @interface SPTCollectionPlatformTestManagerImplementation : NSObject
 @end
 
@@ -137,6 +140,9 @@
 
 @interface SPTQueueTrackAction : SPAction
 - (id)initWithTrack:(SPTPlayerTrack *)track player:(SPTPlayerImpl *)player playerQueue:(SPTCosmosPlayerQueue *)queue upsellManager:(id)arg1 logContext:(id)log alertController:(id)alert;
+@end
+
+@interface SPTShareAction : SPAction
 @end
 
 @interface SPTStartRadioAction : SPAction

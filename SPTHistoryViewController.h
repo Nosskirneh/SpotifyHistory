@@ -18,6 +18,7 @@
 @property (nonatomic, strong) SPTRadioManager *radioManager;
 @property (nonatomic, strong) SPSession *session;
 @property (nonatomic, strong) SPTDataLoaderFactory *dataLoaderFactory;
+@property (nonatomic, strong) SPTShareFeatureImplementation *shareFeature;
 @property (nonatomic, strong) UINavigationItem *navigationItem;
 - (id)initWithPreferences:(NSDictionary *)prefs
       nowPlayingBarHeight:(CGFloat)height
