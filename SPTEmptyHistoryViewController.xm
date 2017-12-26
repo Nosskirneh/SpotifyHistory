@@ -9,7 +9,7 @@
     self.view = [[%c(SPTInfoView) alloc] initWithFrame:CGRectZero];
     self.view.title = @"Ohoh, empty history!";
     self.view.text = @"Go and play some music and watch it appear here afterwards.";
-	self.view.image = [UIImage spt_infoViewErrorIcon];
+    self.view.image = [UIImage spt_infoViewErrorIcon];
 }
 
 @end
