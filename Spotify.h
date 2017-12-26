@@ -1,14 +1,20 @@
-#define inCollectionEnum 0
-#define notInCollectionEnum 2
-
-#define isAvailableOffline 3
-#define isNotAvailableOffline 0
-
-#define LEFT_SWIPE 1
-#define RIGHT_SWIPE 2
-
 #define prefPath @"/var/mobile/Library/Preferences/se.nosskirneh.spotifyhistory.plist"
 #define kTracks @"tracks"
+
+enum {
+    inCollectionEnum = 0,
+    notInCollectionEnum = 2
+};
+
+enum {
+    isAvailableOffline = 3,
+    isNotAvailableOffline = 0
+};
+
+enum {
+    LEFT_SWIPE = 1,
+    RIGHT_SWIPE = 2
+};
 
 // Data objects
 @interface SPTPlayerTrack : NSObject
