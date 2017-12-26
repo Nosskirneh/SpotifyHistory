@@ -4,6 +4,12 @@
 #define isAvailableOffline 3
 #define isNotAvailableOffline 0
 
+#define LEFT_SWIPE 1
+#define RIGHT_SWIPE 2
+
+#define prefPath @"/var/mobile/Library/Preferences/se.nosskirneh.spotifyhistory.plist"
+#define kTracks @"tracks"
+
 // Data objects
 @interface SPTPlayerTrack : NSObject
 @property (nonatomic, readwrite, assign) NSURL *imageURL;
@@ -35,6 +41,7 @@
 
 @interface SPTCosmosPlayerQueue : NSObject
 - (id)initWithPlayer:(SPTPlayerImpl *)player;
+- (void)queueTrack:(SPTPlayerTrack *)track;
 @end
 
 @interface SPTRadioManager : NSObject
@@ -270,4 +277,14 @@ authorizationRequester:(id)arg2
 @interface SPTNowPlayingBarContainerViewController : UIViewController
 - (SPTPlayerTrack *)currentTrack;
 - (NSDictionary *)exportTrack;
+@end
+
+@interface SPTSwipeableTableViewCellShelf : UIView
++ (id)queueShelf;
++ (id)removeFromCollectionShelf;
+@end
+
+@interface SPTSwipeableTableViewCell : UITableViewCell
+- (void)setShelf:(id)shelf forGesture:(NSInteger)gesture;
+- (void)setSwipeDelegate:(id)delegate;
 @end

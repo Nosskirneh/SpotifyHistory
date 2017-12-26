@@ -1,47 +1,11 @@
 #import "SPTHistoryViewController.h"
 
-@interface SPTTrackTableViewCell : UITableViewCell
-@property (nonatomic, strong) NSURL *trackURI;
-@property (nonatomic, strong) NSURL *imageURL;
-@property (nonatomic, strong) NSString *trackName;
-@property (nonatomic, strong) NSString *artist;
-@property (nonatomic, strong) NSString *album;
-@property (nonatomic, strong) NSURL *artistURI;
-@property (nonatomic, strong) NSURL *albumURI;
-@property (nonatomic, strong) SPSession *session;
-@end
-
 @interface SPTTrackContextButton : UIButton
 @property (nonatomic, strong) NSIndexPath *indexPath;
 @property (nonatomic, strong) SPTTrackTableViewCell *cell;
 @end
 
 @implementation SPTTrackContextButton
-@end
-
-
-@implementation SPTTrackTableViewCell
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-
-    self.textLabel.frame = CGRectMake(self.textLabel.frame.origin.x,
-                                      self.textLabel.frame.origin.y,
-                                      self.frame.size.width - 140,
-                                      self.textLabel.frame.size.height);
-
-    self.detailTextLabel.frame = CGRectMake(self.detailTextLabel.frame.origin.x,
-                                            self.detailTextLabel.frame.origin.y,
-                                            self.frame.size.width - 140,
-                                            self.detailTextLabel.frame.size.height);
-
-    // Set lower alpha on tracks not available offline
-    NSInteger offlineState = [self.session.offlineManager stateForTrackWithURL:self.trackURI];
-    if ([self.session isOffline] && offlineState == isNotAvailableOffline) {
-        self.alpha = 0.4;
-    }
-}
-
 @end
 
 
@@ -102,6 +66,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
 }
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
+    self.prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
     return ((NSArray *)self.prefs[kTracks]).count;
 }
 
@@ -168,6 +133,13 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
             cell.imageView.image = img;
         }
     }];
+
+    // Left and right swipes
+    SPTSwipeableTableViewCellShelf *lShelf = [%c(SPTSwipeableTableViewCellShelf) queueShelf];
+    SPTSwipeableTableViewCellShelf *rShelf = [%c(SPTSwipeableTableViewCellShelf) removeFromCollectionShelf];
+    [cell setShelf:lShelf forGesture:LEFT_SWIPE];
+    [cell setShelf:rShelf forGesture:RIGHT_SWIPE];
+    [cell setSwipeDelegate:[[SPTHistorySwipeDelegate alloc] initWithTableView:table player:self.statefulPlayer.player]];
 
     return cell;
 }

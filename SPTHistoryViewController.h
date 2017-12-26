@@ -1,7 +1,6 @@
 #import "Spotify.h"
-
-#define prefPath @"/var/mobile/Library/Preferences/se.nosskirneh.spotifyhistory.plist"
-#define kTracks @"tracks"
+#import "SPTTrackTableViewCell.h"
+#import "SPTHistorySwipeDelegate.h"
 
 @interface SPTHistoryViewController : UITableViewController
 @property (nonatomic, strong) SPTTableView *view;
