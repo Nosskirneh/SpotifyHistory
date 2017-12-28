@@ -36,6 +36,20 @@ static SPTShareFeatureImplementation *shareFeature;
 
 %end
 
+// Help method to create a checkmark in settings
+%hook SettingsMultipleChoiceTableViewCell
+
+%new
+- (void)setCheckmarkAccessory {
+    UIImage *img = [UIImage imageForSPTIcon:6
+                                       size:CGSizeMake(13, 13)
+                                      color:[UIColor colorWithRed:0.11 green:0.73 blue:0.33 alpha:1.0]];
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:img];
+    [self setAccessoryView:imageView];
+}
+
+%end
+
 
 // Highest order is 100 as of currently, but I'm setting
 // this to 200 to make sure it's the last item.
@@ -357,17 +371,3 @@ featureSettingsItemFactory:(id)arg2
         %init(SPSession_8433);
     }
 }
-
-
-%hook SettingsMultipleChoiceTableViewCell
-
-%new
-- (void)setCheckmarkAccessory {
-    UIImage *img = [UIImage imageForSPTIcon:6
-                                       size:CGSizeMake(13, 13)
-                                      color:[UIColor colorWithRed:0.11 green:0.73 blue:0.33 alpha:1.0]];
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:img];
-    [self setAccessoryView:imageView];
-}
-
-%end
