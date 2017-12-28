@@ -2,9 +2,7 @@
 
 @interface SPTEmptyHistoryViewController : UIViewController
 @property (nonatomic, strong) SPTInfoView *view;
-@property (nonatomic, strong) UINavigationItem *navigationItem;
-@property (nonatomic, strong) NSDictionary *prefs;
+@property (nonatomic, assign) UINavigationItem *navigationItem;
 @property (nonatomic) CGFloat nowPlayingBarHeight;
-- (id)initWithPreferences:(NSDictionary *)prefs
-      nowPlayingBarHeight:(CGFloat)height;
+- (id)initWithNowPlayingBarHeight:(CGFloat)height;
 @end

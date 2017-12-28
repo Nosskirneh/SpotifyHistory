@@ -15,22 +15,22 @@
 @implementation SPTHistoryViewController
 @dynamic view;
 
-- (id)initWithPreferences:(NSDictionary *)prefs
-      nowPlayingBarHeight:(CGFloat)height
-              imageLoader:(SPTGLUEImageLoader *)imageLoader
-           statefulPlayer:(SPTStatefulPlayer *)statefulPlayer
+- (id)initWithTracks:(NSArray *)tracks
+ nowPlayingBarHeight:(CGFloat)height
+         imageLoader:(SPTGLUEImageLoader *)imageLoader
+      statefulPlayer:(SPTStatefulPlayer *)statefulPlayer
 modalPresentationController:(SPTModalPresentationControllerImplementation *)modalPresentationController
-       contextImageLoader:(SPTImageLoaderImplementation *)contextImageLoader
-          playlistFeature:(PlaylistFeatureImplementation *)playlistFeature
-       collectionPlatform:(SPTCollectionPlatformImplementation *)collectionPlatform
-           linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
-    scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
-             radioManager:(SPTRadioManager *)radioManager
-                  session:(SPSession *)session
-        dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory
-              shareFeature:(SPTShareFeatureImplementation *)shareFeature {
+  contextImageLoader:(SPTImageLoaderImplementation *)contextImageLoader
+     playlistFeature:(PlaylistFeatureImplementation *)playlistFeature
+  collectionPlatform:(SPTCollectionPlatformImplementation *)collectionPlatform
+      linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
+scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
+        radioManager:(SPTRadioManager *)radioManager
+             session:(SPSession *)session
+   dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory
+        shareFeature:(SPTShareFeatureImplementation *)shareFeature {
     if (self = [super init]) {
-        self.prefs = prefs;
+        self.tracks = tracks;
         self.nowPlayingBarHeight = height;
         self.imageLoader = imageLoader;
         self.statefulPlayer = statefulPlayer;
@@ -82,8 +82,9 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
 }
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
-    self.prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
-    return [self.prefs[kTracks] count];
+    NSDictionary *prefs = [[NSDictionary alloc] initWithContentsOfFile:prefPath];
+    self.tracks = prefs[kTracks];
+    return [self.tracks count];
 }
 
 - (SPTTrackTableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -96,8 +97,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
 
     cell.session = self.session;
 
-    NSArray *tracks = self.prefs[kTracks];
-    NSDictionary *track = tracks[indexPath.row];
+    NSDictionary *track = self.tracks[indexPath.row];
 
     cell.trackName = track[@"name"];
     cell.artist = track[@"artist"];
@@ -350,10 +350,8 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
     }
 }
 
-- (void)updateListWithPreferences:(NSDictionary *)prefs {
-    int prevNumberOfTracks = [self.prefs[kTracks] count];
-
-    NSArray *newTracks = prefs[kTracks];
+- (void)updateListWithTracks:(NSArray *)newTracks {
+    int prevNumberOfTracks = [self.tracks count];
 
     int diff = newTracks.count - prevNumberOfTracks;
     NSMutableArray *indexPaths = [NSMutableArray new];
@@ -382,7 +380,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         [self.view endUpdates];
     }
 
-    self.prefs = prefs;
+    self.tracks = newTracks;
 }
 
 @end

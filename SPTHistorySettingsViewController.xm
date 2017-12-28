@@ -141,7 +141,7 @@
 
         // Update list
         if (self.historyViewController)
-            [_historyViewController updateListWithPreferences:mutablePrefs];
+            [_historyViewController updateListWithTracks:tracks];
     }
 
     self.prefs = mutablePrefs;

@@ -88,25 +88,24 @@ static SPTHistoryViewController *historyVC;
         NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
 
         UIViewController *vc;
-        if (!prefs[kTracks] || ((NSArray *)prefs[kTracks]).count == 0) {
+        if (!prefs[kTracks] || [prefs[kTracks] count] == 0) {
             // No previous history
-            vc = [[SPTEmptyHistoryViewController alloc] initWithPreferences:prefs
-                                                        nowPlayingBarHeight:npBarHeight];
+            vc = [[SPTEmptyHistoryViewController alloc] initWithNowPlayingBarHeight:npBarHeight];
         } else {
-            vc = [[SPTHistoryViewController alloc] initWithPreferences:prefs
-                                                   nowPlayingBarHeight:npBarHeight
-                                                           imageLoader:imageLoader
-                                                        statefulPlayer:statefulPlayer
-                                           modalPresentationController:modalPresentationController
-                                                    contextImageLoader:contextImageLoader
-                                                       playlistFeature:playlistFeature
-                                                    collectionPlatform:collectionPlatform
-                                                        linkDispatcher:self.linkDispatcher
-                                                 scannablesTestManager:scannablesTestManager
-                                                          radioManager:radioManager
-                                                               session:session
-                                                     dataLoaderFactory:dataLoaderFactory
-                                                          shareFeature:shareFeature];
+            vc = [[SPTHistoryViewController alloc] initWithTracks:prefs[kTracks]
+                                              nowPlayingBarHeight:npBarHeight
+                                                      imageLoader:imageLoader
+                                                   statefulPlayer:statefulPlayer
+                                      modalPresentationController:modalPresentationController
+                                               contextImageLoader:contextImageLoader
+                                                  playlistFeature:playlistFeature
+                                               collectionPlatform:collectionPlatform
+                                                   linkDispatcher:self.linkDispatcher
+                                            scannablesTestManager:scannablesTestManager
+                                                     radioManager:radioManager
+                                                          session:session
+                                                dataLoaderFactory:dataLoaderFactory
+                                                     shareFeature:shareFeature];
 
             historyVC = (SPTHistoryViewController *)vc;
         }
@@ -191,7 +190,7 @@ static SPTHistoryViewController *historyVC;
             }
 
             if (historyVC) {
-                [historyVC updateListWithPreferences:prefs];
+                [historyVC updateListWithTracks:tracks];
             }
 
             [prefs release];

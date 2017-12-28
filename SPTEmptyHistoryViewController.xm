@@ -5,10 +5,8 @@
 @dynamic view;
 
 
-- (id)initWithPreferences:(NSDictionary *)prefs
-      nowPlayingBarHeight:(CGFloat)nowPlayingBarHeight {
+- (id)initWithNowPlayingBarHeight:(CGFloat)nowPlayingBarHeight {
     if (self == [super init]) {
-        self.prefs = prefs;
         self.nowPlayingBarHeight = nowPlayingBarHeight;
 
         self.navigationItem = [[UINavigationItem alloc] initWithTitle:@"History"];

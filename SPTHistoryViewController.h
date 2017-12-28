@@ -2,7 +2,7 @@
 
 @interface SPTHistoryViewController : UITableViewController
 @property (nonatomic, strong) SPTTableView *view;
-@property (nonatomic, strong) NSDictionary *prefs;
+@property (nonatomic, strong) NSArray *tracks;
 @property (nonatomic, assign) SPTGLUEImageLoader *imageLoader;
 @property (nonatomic, assign) SPTStatefulPlayer *statefulPlayer;
 @property (nonatomic) CGFloat nowPlayingBarHeight;
@@ -17,19 +17,19 @@
 @property (nonatomic, assign) SPTDataLoaderFactory *dataLoaderFactory;
 @property (nonatomic, assign) SPTShareFeatureImplementation *shareFeature;
 @property (nonatomic, assign) UINavigationItem *navigationItem;
-- (id)initWithPreferences:(NSDictionary *)prefs
-      nowPlayingBarHeight:(CGFloat)height
-              imageLoader:(SPTGLUEImageLoader *)imageLoader
-           statefulPlayer:(SPTStatefulPlayer *)statefulPlayer
+- (id)initWithTracks:(NSArray *)tracks
+ nowPlayingBarHeight:(CGFloat)height
+         imageLoader:(SPTGLUEImageLoader *)imageLoader
+      statefulPlayer:(SPTStatefulPlayer *)statefulPlayer
 modalPresentationController:(SPTModalPresentationControllerImplementation *)modalPresentationController
-       contextImageLoader:(SPTImageLoaderImplementation *)contextImageLoader
-          playlistFeature:(PlaylistFeatureImplementation *)playlistFeature
-       collectionPlatform:(SPTCollectionPlatformImplementation *)collectionPlatform
-           linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
-    scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
-             radioManager:(SPTRadioManager *)radioManager
-                  session:(SPSession *)session
-        dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory
-             shareFeature:(SPTShareFeatureImplementation *)shareFeature;
-- (void)updateListWithPreferences:(NSDictionary *)prefs;
+  contextImageLoader:(SPTImageLoaderImplementation *)contextImageLoader
+     playlistFeature:(PlaylistFeatureImplementation *)playlistFeature
+  collectionPlatform:(SPTCollectionPlatformImplementation *)collectionPlatform
+      linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
+scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
+        radioManager:(SPTRadioManager *)radioManager
+             session:(SPSession *)session
+   dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory
+        shareFeature:(SPTShareFeatureImplementation *)shareFeature;
+- (void)updateListWithTracks:(NSArray *)tracks;
 @end
