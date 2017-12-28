@@ -1,5 +1,6 @@
 #define prefPath @"/var/mobile/Library/Preferences/se.nosskirneh.spotifyhistory.plist"
 #define kTracks @"tracks"
+#define kMaxSize @"maxSize"
 
 enum {
     inCollectionEnum = 0,
@@ -84,6 +85,7 @@ enum {
 // Images
 @interface UIImage (spt)
 + (id)imageForSPTIcon:(NSInteger)icon size:(CGSize)size;
++ (id)imageForSPTIcon:(NSInteger)icon size:(CGSize)size color:(UIColor *)color;
 + (id)trackSPTPlaceholderWithSize:(NSInteger)size;
 + (id)spt_infoViewErrorIcon;
 @end
@@ -263,6 +265,7 @@ authorizationRequester:(id)arg2
 @end
 
 @interface SPTTableView : UITableView
+- (id)dequeueReusableHeaderFooterViewWithIdentifier:(id)identifier;
 @end
 
 @interface SPTInfoView : UIView
@@ -271,12 +274,11 @@ authorizationRequester:(id)arg2
 @property (nonatomic, readwrite, assign) UIImage *image;
 @end
 
-@interface SPNavigationController : UINavigationController
+@interface UINavigationController (SPT)
 - (void)pushViewControllerOnTopOfTheNavigationStack:(UIViewController *)vc animated:(BOOL)animate;
 @end
 
 @interface SPTCollectionOverviewViewController : UIViewController
-@property (nonatomic, readwrite, assign) SPNavigationController *navigationController;
 @property (nonatomic, readwrite, assign) SPTLinkDispatcherImplementation *linkDispatcher;
 @end
 
@@ -293,4 +295,20 @@ authorizationRequester:(id)arg2
 @interface SPTSwipeableTableViewCell : UITableViewCell
 - (void)setShelf:(id)shelf forGesture:(NSInteger)gesture;
 - (void)setSwipeDelegate:(id)delegate;
+@end
+
+@interface SettingsMultipleChoiceTableViewCell : UITableViewCell
+- (void)setCheckmarkAccessory;
+- (void)setAccessoryView:(UIImageView *)view;
+@end
+
+@interface SPTTableViewSectionHeaderView : UIView
+@property (nonatomic, readwrite, assign) NSString *title;
+@end
+
+@interface SPTableHeaderFooterView : UIView
+- (id)initWithStyle:(NSInteger)style maxWidth:(CGFloat)width;
+@property (nonatomic, readwrite, assign) NSString *text;
+@property (nonatomic, readwrite, assign) BOOL firstSection;
+@property (nonatomic, readwrite, assign) BOOL lastSection;
 @end

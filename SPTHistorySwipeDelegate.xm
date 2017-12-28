@@ -1,4 +1,5 @@
 #import "SPTHistorySwipeDelegate.h"
+#import "SPTTrackTableViewCell.h"
 
 @implementation SPTHistorySwipeDelegate
 

@@ -79,6 +79,8 @@ static CGFloat npBarHeight;
  * `SPTCollectionOverviewViewController` – it exists several schemas handlers as properties.
  */
 
+static SPTHistoryViewController *historyVC;
+
 %hook SPTCollectionOverviewViewController
 
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -88,7 +90,8 @@ static CGFloat npBarHeight;
         UIViewController *vc;
         if (!prefs[kTracks] || ((NSArray *)prefs[kTracks]).count == 0) {
             // No previous history
-            vc = [[SPTEmptyHistoryViewController alloc] init];
+            vc = [[SPTEmptyHistoryViewController alloc] initWithPreferences:prefs
+                                                        nowPlayingBarHeight:npBarHeight];
         } else {
             vc = [[SPTHistoryViewController alloc] initWithPreferences:prefs
                                                    nowPlayingBarHeight:npBarHeight
@@ -104,6 +107,8 @@ static CGFloat npBarHeight;
                                                                session:session
                                                      dataLoaderFactory:dataLoaderFactory
                                                           shareFeature:shareFeature];
+
+            historyVC = (SPTHistoryViewController *)vc;
         }
 
         [self.navigationController pushViewControllerOnTopOfTheNavigationStack:vc animated:YES];
@@ -168,6 +173,10 @@ static CGFloat npBarHeight;
                 }
                 NSMutableArray *newTracks = [tracks mutableCopy];
                 [newTracks insertObject:tr atIndex:0];
+                int maxSize = prefs[kMaxSize] ? [prefs[kMaxSize] intValue] : 100;
+                if (newTracks.count > maxSize) {
+                    [newTracks removeLastObject];
+                }
                 tracks = newTracks;
             } else {
                 tracks = [[NSArray alloc] initWithObjects:tr, nil];
@@ -180,6 +189,11 @@ static CGFloat npBarHeight;
             if (![prefs writeToFile:prefPath atomically:YES]) {
                 HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
             }
+
+            if (historyVC) {
+                [historyVC updateListWithPreferences:prefs];
+            }
+
             [prefs release];
         }
     }
@@ -344,3 +358,17 @@ featureSettingsItemFactory:(id)arg2
         %init(SPSession_8433);
     }
 }
+
+
+%hook SettingsMultipleChoiceTableViewCell
+
+%new
+- (void)setCheckmarkAccessory {
+    UIImage *img = [UIImage imageForSPTIcon:6
+                                       size:CGSizeMake(13, 13)
+                                      color:[UIColor colorWithRed:0.11 green:0.73 blue:0.33 alpha:1.0]];
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:img];
+    [self setAccessoryView:imageView];
+}
+
+%end

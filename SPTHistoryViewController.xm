@@ -1,4 +1,7 @@
 #import "SPTHistoryViewController.h"
+#import "SPTTrackTableViewCell.h"
+#import "SPTHistorySwipeDelegate.h"
+#import "SPTHistorySettingsViewController.h"
 
 @interface SPTTrackContextButton : UIButton
 @property (nonatomic, strong) NSIndexPath *indexPath;
@@ -42,12 +45,26 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         self.dataLoaderFactory = dataLoaderFactory;
         self.shareFeature = shareFeature;
 
+        // Navigation items
         self.navigationItem = [[UINavigationItem alloc] initWithTitle:@"History"];
+        UIImage *settingsIcon = [UIImage imageForSPTIcon:11 size:CGSizeMake(24, 24)];
+        UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithImage:settingsIcon
+                                                                      style:UIBarButtonItemStylePlain
+                                                                     target:self
+                                                                     action:@selector(presentSettings:)];
+        [self.navigationItem setRightBarButtonItem:rightItem];
 
         [self.session.offlineNotifier addOfflineModeObserver:self];
     }
 
     return self;
+}
+
+- (void)presentSettings:(UIBarButtonItem *)sender {
+    SPTHistorySettingsViewController *vc = [[SPTHistorySettingsViewController alloc] initWithPreferences:self.prefs
+                                                                                     nowPlayingBarHeight:self.nowPlayingBarHeight
+                                                                                   historyViewController:self];
+    [self.navigationController pushViewControllerOnTopOfTheNavigationStack:vc animated:YES];
 }
 
 - (void)dealloc {
@@ -67,7 +84,7 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
     self.prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
-    return ((NSArray *)self.prefs[kTracks]).count;
+    return [self.prefs[kTracks] count];
 }
 
 - (SPTTrackTableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -332,6 +349,41 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
         }
         cell.alpha = alpha;
     }
+}
+
+- (void)updateListWithPreferences:(NSDictionary *)prefs {
+    int prevNumberOfTracks = [self.prefs[kTracks] count];
+
+    NSArray *newTracks = prefs[kTracks];
+
+    int diff = newTracks.count - prevNumberOfTracks;
+    NSMutableArray *indexPaths = [NSMutableArray new];
+    NSIndexPath *indexPath = nil;
+    if (diff > 0) {
+        // Addition
+        for (int i = 0; i < diff; i++) {
+            indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+            [indexPaths addObject:indexPath];
+        }
+        [self.view insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+    } else if (diff < 0) {
+        // Removal
+        for (int i = newTracks.count; i < prevNumberOfTracks; i++) {
+            indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+            [indexPaths addObject:indexPath];
+        }
+        [self.view deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+    } else {
+        // Added one song, removed one
+        [self.view beginUpdates];
+        indexPath = [NSIndexPath indexPathForRow:prevNumberOfTracks - 1 inSection:0];
+        [self.view deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+        [self.view insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self.view endUpdates];
+    }
+
+    self.prefs = prefs;
 }
 
 @end

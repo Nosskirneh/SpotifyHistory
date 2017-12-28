@@ -1,6 +1,4 @@
 #import "Spotify.h"
-#import "SPTTrackTableViewCell.h"
-#import "SPTHistorySwipeDelegate.h"
 
 @interface SPTHistoryViewController : UITableViewController
 @property (nonatomic, strong) SPTTableView *view;
@@ -33,4 +31,5 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
                   session:(SPSession *)session
         dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory
              shareFeature:(SPTShareFeatureImplementation *)shareFeature;
+- (void)updateListWithPreferences:(NSDictionary *)prefs;
 @end
