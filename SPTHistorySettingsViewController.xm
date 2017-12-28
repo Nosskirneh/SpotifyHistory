@@ -74,6 +74,7 @@
     // Set text
     if (cell.value == 0) {
         cell.textLabel.text = @"∞";
+        cell.textLabel.font = [cell.textLabel.font fontWithSize:24];
     } else {
         cell.textLabel.text = [NSString stringWithFormat:@"%li", (long)cell.value];
     }
