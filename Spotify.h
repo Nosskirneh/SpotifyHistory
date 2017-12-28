@@ -113,6 +113,14 @@ enum {
 @end
 
 @interface PlaylistFeatureImplementation : NSObject
+
+- (void)presentAddToPlaylistViewControllerWithTrackURLs:(NSArray<NSURL *> *)trackURLs
+                                           addEntityURL:(NSURL *)entityURL
+                                    defaultPlaylistName:(NSString *)playlistName
+                                             senderView:(UIView *)view
+                                             logContext:(id)log
+                                              sourceURL:(NSURL *)sourceURL
+                                       contextSourceURL:(NSURL *)contextSourceURL;
 @end
 
 @interface SPTShareFeatureImplementation : NSObject
@@ -311,4 +319,11 @@ authorizationRequester:(id)arg2
 @property (nonatomic, readwrite, assign) NSString *text;
 @property (nonatomic, readwrite, assign) BOOL firstSection;
 @property (nonatomic, readwrite, assign) BOOL lastSection;
+@end
+
+@interface GLUEButton : UIButton
+@end
+
+@interface SPTSettingsButtonTableViewCell : UITableViewCell
+@property (nonatomic, readwrite, assign) GLUEButton *button;
 @end

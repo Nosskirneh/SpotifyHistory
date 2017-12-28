@@ -30,7 +30,8 @@
 
 - (void)presentSettings:(UIBarButtonItem *)sender {
     SPTHistorySettingsViewController *vc = [[SPTHistorySettingsViewController alloc] initWithNowPlayingBarHeight:self.nowPlayingBarHeight
-                                                                                           historyViewController:nil];
+                                                                                           historyViewController:nil
+                                                                                                 playlistFeature:nil];
     [self.navigationController pushViewControllerOnTopOfTheNavigationStack:vc animated:YES];
 }
 

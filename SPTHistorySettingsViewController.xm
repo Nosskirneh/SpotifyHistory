@@ -13,11 +13,13 @@
 @dynamic view;
 
 - (id)initWithNowPlayingBarHeight:(CGFloat)nowPlayingBarHeight
-            historyViewController:(SPTHistoryViewController *)historyViewController {
+            historyViewController:(SPTHistoryViewController *)historyViewController
+                  playlistFeature:(PlaylistFeatureImplementation *)playlistFeature {
     if (self == [super init]) {
         self.prefs = [[NSDictionary alloc] initWithContentsOfFile:prefPath];
         self.nowPlayingBarHeight = nowPlayingBarHeight;
         self.historyViewController = historyViewController;
+        self.playlistFeature = playlistFeature;
 
         self.navigationItem = [[UINavigationItem alloc] initWithTitle:@"History Settings"];
     }
@@ -36,16 +38,43 @@
 }
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
-    return 4;
+    if (section == 0)
+        return 4;
+    else
+        return 1;
 }
 
-- (SettingsMultipleChoiceIntegerTableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 2;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *cellIdentifier = @"Cell";
 
-    SettingsMultipleChoiceIntegerTableViewCell *cell = [table dequeueReusableCellWithIdentifier:cellIdentifier];
-    if (cell == nil) {
-        cell = [[%c(SettingsMultipleChoiceIntegerTableViewCell) alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];
+    if (indexPath.section == 1) {
+        SPTSettingsButtonTableViewCell *cell = [table dequeueReusableCellWithIdentifier:cellIdentifier];
+        if (cell == nil)
+            cell = [[%c(SPTSettingsButtonTableViewCell) alloc] initWithStyle:UITableViewCellStyleDefault
+                                                             reuseIdentifier:cellIdentifier];
+
+        cell.textLabel.text = @"Export as playlist";
+        if (!_playlistFeature) {
+            cell.button.enabled = NO;
+            cell.userInteractionEnabled = NO;
+        }
+        return cell;
     }
+
+    return [self tableView:table createMaxSizeCellForIndexPath:indexPath withCellIdentifier:cellIdentifier];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)table
+ createMaxSizeCellForIndexPath:(NSIndexPath *)indexPath
+            withCellIdentifier:(NSString *)cellIdentifier {
+    SettingsMultipleChoiceIntegerTableViewCell *cell = [table dequeueReusableCellWithIdentifier:cellIdentifier];
+    if (cell == nil)
+        cell = [[%c(SettingsMultipleChoiceIntegerTableViewCell) alloc] initWithStyle:UITableViewCellStyleDefault
+                                                                     reuseIdentifier:cellIdentifier];
 
     // Save numeric values
     if (indexPath.row == 0) {
@@ -77,6 +106,7 @@
     } else {
         cell.textLabel.text = [NSString stringWithFormat:@"%li", (long)cell.value];
     }
+
     return cell;
 }
 
@@ -89,6 +119,8 @@
 
     if (section == 0)
         view.title = @"Saving";
+    else
+        view.title = @"Export";
     return view;
 }
 
@@ -111,13 +143,19 @@
 
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [table deselectRowAtIndexPath:indexPath animated:YES];
-    SettingsMultipleChoiceIntegerTableViewCell *cell = nil;
 
+    // Export
+    if (indexPath.section == 1) {
+        return [self exportTracks];
+    }
+
+    // Max size
     // Same cell as already picked?
     if ([self.currentIndexPath isEqual:indexPath]) {
         return;
     }
 
+    SettingsMultipleChoiceIntegerTableViewCell *cell = nil;
     // Unmark the previously cell
     cell = ((SettingsMultipleChoiceIntegerTableViewCell *)[table cellForRowAtIndexPath:self.currentIndexPath]);
     [cell setAccessoryView:nil];
@@ -154,6 +192,27 @@
 
 - (CGFloat)tableView:(UITableView *)table heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return 54;
+}
+
+- (void)exportTracks {
+    NSMutableArray *trackURLs = [NSMutableArray new];
+    for (NSDictionary *track in self.prefs[kTracks]) {
+        [trackURLs addObject:[NSURL URLWithString:track[@"URI"]]];
+    }
+
+    NSDate *date = [[NSDate alloc] init];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"YYYY-MM-dd"];
+    NSString *dateString = [dateFormatter stringFromDate:date];
+    NSString *playlistName = [NSString stringWithFormat:@"History (%@)", dateString];
+
+    [_playlistFeature presentAddToPlaylistViewControllerWithTrackURLs:trackURLs
+                                                         addEntityURL:nil
+                                                  defaultPlaylistName:playlistName
+                                                           senderView:self.view
+                                                           logContext:nil
+                                                            sourceURL:nil
+                                                     contextSourceURL:nil];
 }
 
 @end

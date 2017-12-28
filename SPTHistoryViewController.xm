@@ -62,7 +62,8 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
 
 - (void)presentSettings:(UIBarButtonItem *)sender {
     SPTHistorySettingsViewController *vc = [[SPTHistorySettingsViewController alloc] initWithNowPlayingBarHeight:self.nowPlayingBarHeight
-                                                                                           historyViewController:self];
+                                                                                           historyViewController:self
+                                                                                                 playlistFeature:self.playlistFeature];
     [self.navigationController pushViewControllerOnTopOfTheNavigationStack:vc animated:YES];
 }
 

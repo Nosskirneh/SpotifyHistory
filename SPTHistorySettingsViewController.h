@@ -8,6 +8,8 @@
 @property (nonatomic, assign) UINavigationItem *navigationItem;
 @property (nonatomic, assign) NSIndexPath *currentIndexPath;
 @property (nonatomic, assign) SPTHistoryViewController *historyViewController;
+@property (nonatomic, assign) PlaylistFeatureImplementation *playlistFeature;
 - (id)initWithNowPlayingBarHeight:(CGFloat)nowPlayingBarHeight
-    		historyViewController:(SPTHistoryViewController *)historyViewController;
+            historyViewController:(SPTHistoryViewController *)historyViewController
+                  playlistFeature:(PlaylistFeatureImplementation *)playlistFeature;
 @end
