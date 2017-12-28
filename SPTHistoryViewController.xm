@@ -61,9 +61,8 @@ modalPresentationController:(SPTModalPresentationControllerImplementation *)moda
 }
 
 - (void)presentSettings:(UIBarButtonItem *)sender {
-    SPTHistorySettingsViewController *vc = [[SPTHistorySettingsViewController alloc] initWithPreferences:self.prefs
-                                                                                     nowPlayingBarHeight:self.nowPlayingBarHeight
-                                                                                   historyViewController:self];
+    SPTHistorySettingsViewController *vc = [[SPTHistorySettingsViewController alloc] initWithNowPlayingBarHeight:self.nowPlayingBarHeight
+                                                                                           historyViewController:self];
     [self.navigationController pushViewControllerOnTopOfTheNavigationStack:vc animated:YES];
 }
 

@@ -12,11 +12,10 @@
 @implementation SPTHistorySettingsViewController
 @dynamic view;
 
-- (id)initWithPreferences:(NSDictionary *)prefs
-      nowPlayingBarHeight:(CGFloat)nowPlayingBarHeight
-    historyViewController:(SPTHistoryViewController *)historyViewController {
+- (id)initWithNowPlayingBarHeight:(CGFloat)nowPlayingBarHeight
+            historyViewController:(SPTHistoryViewController *)historyViewController {
     if (self == [super init]) {
-        self.prefs = prefs;
+        self.prefs = [[NSDictionary alloc] initWithContentsOfFile:prefPath];
         self.nowPlayingBarHeight = nowPlayingBarHeight;
         self.historyViewController = historyViewController;
 
@@ -110,10 +109,14 @@
     return 69;
 }
 
-
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [table deselectRowAtIndexPath:indexPath animated:YES];
     SettingsMultipleChoiceIntegerTableViewCell *cell = nil;
+
+    // Same cell as already picked?
+    if ([self.currentIndexPath isEqual:indexPath]) {
+        return;
+    }
 
     // Unmark the previously cell
     cell = ((SettingsMultipleChoiceIntegerTableViewCell *)[table cellForRowAtIndexPath:self.currentIndexPath]);
@@ -135,15 +138,16 @@
             [tracks removeLastObject];
         }
         mutablePrefs[kTracks] = tracks;
+
+        // Update list
+        if (self.historyViewController)
+            [_historyViewController updateListWithPreferences:mutablePrefs];
     }
 
+    self.prefs = mutablePrefs;
     if (![mutablePrefs writeToFile:prefPath atomically:YES]) {
         HBLogError(@"Could not save %@ to path %@", mutablePrefs, prefPath);
     }
-
-    // Update list
-    if (self.historyViewController)
-        [_historyViewController updateListWithPreferences:mutablePrefs];
 
     self.currentIndexPath = indexPath;
 }

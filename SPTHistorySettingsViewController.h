@@ -8,7 +8,6 @@
 @property (nonatomic, assign) UINavigationItem *navigationItem;
 @property (nonatomic, assign) NSIndexPath *currentIndexPath;
 @property (nonatomic, assign) SPTHistoryViewController *historyViewController;
-- (id)initWithPreferences:(NSDictionary *)prefs
-      nowPlayingBarHeight:(CGFloat)nowPlayingBarHeight
-    historyViewController:(SPTHistoryViewController *)historyViewController;
+- (id)initWithNowPlayingBarHeight:(CGFloat)nowPlayingBarHeight
+    		historyViewController:(SPTHistoryViewController *)historyViewController;
 @end
