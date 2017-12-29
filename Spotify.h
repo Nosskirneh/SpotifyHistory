@@ -321,9 +321,36 @@ authorizationRequester:(id)arg2
 @property (nonatomic, readwrite, assign) BOOL lastSection;
 @end
 
+@interface GLUEButtonStyle : NSObject
+@property (nonatomic, readwrite, assign) UIColor *normalBackgroundColor;
+@property (nonatomic, readwrite, assign) UIColor *highlightedBackgroundColor;
+@end
+
 @interface GLUEButton : UIButton
+@property (nonatomic, readwrite, assign) GLUEButtonStyle *glueStyle;
 @end
 
 @interface SPTSettingsButtonTableViewCell : UITableViewCell
 @property (nonatomic, readwrite, assign) GLUEButton *button;
+@end
+
+
+/*
+ * SPTProgressView modes:
+ * 0: three dots
+ * 1: checkmark
+ * 2: cross
+ */
+enum {
+    threeDotsMode,
+    checkmarkMode,
+    crossMode
+};
+
+@interface SPTProgressView : UIView
+@property (nonatomic, copy, readwrite) NSString *title;
+@property (nonatomic, assign, readwrite) NSInteger mode;
++ (id)progressView;
+- (void)animateShowing;
+- (void)animateHiding;
 @end

@@ -4,7 +4,6 @@
 @implementation SPTEmptyHistoryViewController
 @dynamic view;
 
-
 - (id)initWithNowPlayingBarHeight:(CGFloat)nowPlayingBarHeight {
     if (self == [super init]) {
         self.nowPlayingBarHeight = nowPlayingBarHeight;

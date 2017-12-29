@@ -1,4 +1,5 @@
 #import "SPTHistoryViewController.h"
+#import "SPTEmptyHistoryViewController.h"
 #import "SPTTrackTableViewCell.h"
 #import "SPTHistorySwipeDelegate.h"
 #import "SPTHistorySettingsViewController.h"
@@ -352,6 +353,16 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
 }
 
 - (void)updateListWithTracks:(NSArray *)newTracks {
+    // Removed all items?
+    if (!newTracks) {
+        SPTEmptyHistoryViewController *vc = [[%c(SPTEmptyHistoryViewController) alloc] init];
+        self.infoView = vc.view;
+        self.infoView.frame = self.view.frame;
+        [self.view addSubview:self.infoView];
+        [self.view reloadData];
+        return;
+    }
+
     int prevNumberOfTracks = [self.tracks count];
 
     int diff = newTracks.count - prevNumberOfTracks;
@@ -363,6 +374,11 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
             indexPath = [NSIndexPath indexPathForRow:i inSection:0];
             [indexPaths addObject:indexPath];
         }
+        if (self.infoView) {
+            [self.infoView removeFromSuperview];
+            self.infoView = nil;
+        }
+
         [self.view insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
     } else if (diff < 0) {
         // Removal

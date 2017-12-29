@@ -9,6 +9,7 @@
 @property (nonatomic, assign) NSIndexPath *currentIndexPath;
 @property (nonatomic, assign) SPTHistoryViewController *historyViewController;
 @property (nonatomic, assign) PlaylistFeatureImplementation *playlistFeature;
+@property (nonatomic, assign) NSMutableArray *buttons;
 - (id)initWithNowPlayingBarHeight:(CGFloat)nowPlayingBarHeight
             historyViewController:(SPTHistoryViewController *)historyViewController
                   playlistFeature:(PlaylistFeatureImplementation *)playlistFeature;

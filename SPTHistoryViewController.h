@@ -2,6 +2,7 @@
 
 @interface SPTHistoryViewController : UITableViewController
 @property (nonatomic, strong) SPTTableView *view;
+@property (nonatomic, strong) SPTInfoView *infoView;
 @property (nonatomic, strong) NSArray *tracks;
 @property (nonatomic, assign) SPTGLUEImageLoader *imageLoader;
 @property (nonatomic, assign) SPTStatefulPlayer *statefulPlayer;
