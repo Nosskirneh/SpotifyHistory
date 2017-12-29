@@ -172,7 +172,7 @@ static SPTHistoryViewController *historyVC;
             if (prefs[kTracks]) {
                 tracks = prefs[kTracks];
                 // Compare last history item to now playing - are they the same?
-                if ([[tracks firstObject][@"trackURI"] isEqualToString:tr[@"trackURI"]]) {
+                if ([[tracks firstObject][@"URI"] isEqualToString:tr[@"URI"]]) {
                     goto updateTimer; // "break" from if statement - do not add track
                 }
                 NSMutableArray *newTracks = [tracks mutableCopy];
