@@ -242,13 +242,15 @@
     NSString *dateString = [dateFormatter stringFromDate:date];
     NSString *playlistName = [NSString stringWithFormat:@"History (%@)", dateString];
 
-    [_playlistFeature presentAddToPlaylistViewControllerWithTrackURLs:trackURLs
-                                                         addEntityURL:nil
-                                                  defaultPlaylistName:playlistName
-                                                           senderView:self.view
-                                                           logContext:nil
-                                                            sourceURL:nil
-                                                     contextSourceURL:nil];
+    if ([_playlistFeature respondsToSelector:@selector(presentAddToPlaylistViewControllerWithTrackURLs:addEntityURL:defaultPlaylistName:senderView:logContext:sourceURL:contextSourceURL:)]) {
+        [_playlistFeature presentAddToPlaylistViewControllerWithTrackURLs:trackURLs
+                                                             addEntityURL:nil
+                                                      defaultPlaylistName:playlistName
+                                                               senderView:self.view
+                                                               logContext:nil
+                                                                sourceURL:nil
+                                                         contextSourceURL:nil];
+    }
 }
 
 - (void)removeHistory {
@@ -274,13 +276,15 @@
         [_historyViewController updateListWithTracks:nil];
 
     // Show alert
-    SPTProgressView *view = [%c(SPTProgressView) progressView];
-    view.frame = self.view.frame;
-    view.title = @"Erased all history";
-    view.mode = crossMode;
-    [[[UIApplication sharedApplication] keyWindow] addSubview:view];
-    [view animateShowing];
-    [view performSelector:@selector(animateHiding) withObject:nil afterDelay:2];
+    if (%c(SPTProgressView) && [%c(SPTProgressView) respondsToSelector:@selector(progressView)]) {
+        SPTProgressView *view = [%c(SPTProgressView) progressView];
+        view.frame = self.view.frame;
+        view.title = @"Erased all history";
+        view.mode = crossMode;
+        [[[UIApplication sharedApplication] keyWindow] addSubview:view];
+        [view animateShowing];
+        [view performSelector:@selector(animateHiding) withObject:nil afterDelay:2];
+    }
 }
 
 @end
