@@ -353,6 +353,23 @@ featureSettingsItemFactory:(id)arg2
 %end
 
 
+// Clear data on change of user
+%hook SpotifyAppDelegate
+
+- (void)userWillLogOut {
+    %orig;
+
+    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
+    prefs[kTracks] = @[];
+
+    if (![prefs writeToFile:prefPath atomically:YES]) {
+        HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
+    }
+}
+
+%end
+
+
 %ctor {
     %init();
 
