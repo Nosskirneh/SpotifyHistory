@@ -3,10 +3,13 @@
 
 @implementation SPTHistorySwipeDelegate
 
-- (id)initWithTableView:(UITableView *)tableView player:(SPTPlayerImpl *)player {
+- (id)initWithTableView:(UITableView *)tableView
+                 player:(SPTPlayerImpl *)player
+  historyViewController:(SPTHistoryViewController *)historyViewController {
     if (self = [super init]) {
         self.tableView = tableView;
         self.player = player;
+        self.historyViewController = historyViewController;
     }
 
     return self;
@@ -26,7 +29,7 @@
         NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
 
         NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
-        NSMutableArray *tracks = [((NSArray *)prefs[kTracks]) mutableCopy];
+        NSMutableArray *tracks = [prefs[kTracks] mutableCopy];
         [tracks removeObjectAtIndex:indexPath.row];
 
         prefs[kTracks] = tracks;
@@ -35,6 +38,7 @@
         }
 
         [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        [self.historyViewController checkEmptyTracks:tracks];
     }
 }
 

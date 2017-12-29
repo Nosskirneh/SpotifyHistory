@@ -33,4 +33,5 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
    dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory
         shareFeature:(SPTShareFeatureImplementation *)shareFeature;
 - (void)updateListWithTracks:(NSArray *)tracks;
+- (BOOL)checkEmptyTracks:(NSArray *)newTracks;
 @end

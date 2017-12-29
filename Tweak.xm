@@ -1,6 +1,5 @@
 #import "Spotify.h"
 #import "SPTHistoryViewController.h"
-#import "SPTEmptyHistoryViewController.h"
 
 static SPTGLUEImageLoader *imageLoader;
 static SPTStatefulPlayer *statefulPlayer;
@@ -101,30 +100,22 @@ static SPTHistoryViewController *historyVC;
     if (indexPath.row == [table numberOfRowsInSection:indexPath.section] - 1) {
         NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
 
-        UIViewController *vc;
-        if (!prefs[kTracks] || [prefs[kTracks] count] == 0) {
-            // No previous history
-            vc = [[SPTEmptyHistoryViewController alloc] initWithNowPlayingBarHeight:npBarHeight];
-        } else {
-            vc = [[SPTHistoryViewController alloc] initWithTracks:prefs[kTracks]
-                                              nowPlayingBarHeight:npBarHeight
-                                                      imageLoader:imageLoader
-                                                   statefulPlayer:statefulPlayer
-                                      modalPresentationController:modalPresentationController
-                                               contextImageLoader:contextImageLoader
-                                                  playlistFeature:playlistFeature
-                                               collectionPlatform:collectionPlatform
-                                                   linkDispatcher:self.linkDispatcher
-                                            scannablesTestManager:scannablesTestManager
-                                                     radioManager:radioManager
-                                                          session:session
-                                                dataLoaderFactory:dataLoaderFactory
-                                                     shareFeature:shareFeature];
+        historyVC = [[SPTHistoryViewController alloc] initWithTracks:prefs[kTracks]
+                                                 nowPlayingBarHeight:npBarHeight
+                                                         imageLoader:imageLoader
+                                                      statefulPlayer:statefulPlayer
+                                         modalPresentationController:modalPresentationController
+                                                  contextImageLoader:contextImageLoader
+                                                     playlistFeature:playlistFeature
+                                                  collectionPlatform:collectionPlatform
+                                                      linkDispatcher:self.linkDispatcher
+                                               scannablesTestManager:scannablesTestManager
+                                                        radioManager:radioManager
+                                                             session:session
+                                                   dataLoaderFactory:dataLoaderFactory
+                                                        shareFeature:shareFeature];
 
-            historyVC = (SPTHistoryViewController *)vc;
-        }
-
-        [self.navigationController pushViewControllerOnTopOfTheNavigationStack:vc animated:YES];
+        [self.navigationController pushViewControllerOnTopOfTheNavigationStack:historyVC animated:YES];
         [table deselectRowAtIndexPath:indexPath animated:NO];
 
         [prefs release];

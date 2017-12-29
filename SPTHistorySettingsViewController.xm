@@ -61,7 +61,7 @@
                                                              reuseIdentifier:cellIdentifier];
 
         cell.textLabel.text = @"Export as playlist";
-        if (!_playlistFeature) {
+        if (!_playlistFeature || !_prefs[kTracks] || [_prefs[kTracks] count] == 0) {
             cell.button.enabled = NO;
             cell.button.userInteractionEnabled = NO;
         }
@@ -228,6 +228,9 @@
 }
 
 - (void)exportTracks {
+    if (!self.prefs[kTracks] || [self.prefs[kTracks] count] == 0)
+        return;
+
     NSMutableArray *trackURLs = [NSMutableArray new];
     for (NSDictionary *track in self.prefs[kTracks]) {
         [trackURLs addObject:[NSURL URLWithString:track[@"URI"]]];
@@ -249,6 +252,9 @@
 }
 
 - (void)removeHistory {
+    if (!self.prefs[kTracks] || [self.prefs[kTracks] count] == 0)
+        return;
+
     // Deactivate buttons
     for (GLUEButton *button in self.buttons) {
         button.enabled = NO;

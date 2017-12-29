@@ -1,5 +1,4 @@
 #import "SPTHistoryViewController.h"
-#import "SPTEmptyHistoryViewController.h"
 #import "SPTTrackTableViewCell.h"
 #import "SPTHistorySwipeDelegate.h"
 #import "SPTHistorySettingsViewController.h"
@@ -75,12 +74,27 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
 
 - (void)loadView {
     self.view = [[%c(SPTTableView) alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    if (!self.tracks || self.tracks.count == 0) {
+        [self createInfoViewIfNeeded];
+        self.view.scrollEnabled = NO;
+        [self.view addSubview:self.infoView];
+    }
     self.view.dataSource = self;
     self.view.delegate = self;
     self.view.contentInset = UIEdgeInsetsMake(self.view.contentInset.top,
                                               self.view.contentInset.left - 4,
                                               self.view.contentInset.bottom + self.nowPlayingBarHeight,
                                               self.view.contentInset.right);
+}
+
+- (void)createInfoViewIfNeeded {
+    if (!_infoView) {
+        self.infoView = [[%c(SPTInfoView) alloc] initWithFrame:CGRectZero];
+        self.infoView.title = @"Ohoh, empty history!";
+        self.infoView.text = @"Go and play some music and watch it appear here afterwards.";
+        self.infoView.image = [UIImage spt_infoViewErrorIcon];
+        self.infoView.frame = self.view.frame;
+    }
 }
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
@@ -157,7 +171,9 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
     SPTSwipeableTableViewCellShelf *rShelf = [%c(SPTSwipeableTableViewCellShelf) removeFromCollectionShelf];
     [cell setShelf:lShelf forGesture:LEFT_SWIPE];
     [cell setShelf:rShelf forGesture:RIGHT_SWIPE];
-    [cell setSwipeDelegate:[[SPTHistorySwipeDelegate alloc] initWithTableView:table player:self.statefulPlayer.player]];
+    [cell setSwipeDelegate:[[SPTHistorySwipeDelegate alloc] initWithTableView:table
+                                                                       player:self.statefulPlayer.player
+                                                        historyViewController:self]];
 
     return cell;
 }
@@ -352,16 +368,21 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
     }
 }
 
+- (BOOL)checkEmptyTracks:(NSArray *)newTracks {
+    if (!newTracks || newTracks.count == 0) {
+        [self createInfoViewIfNeeded];
+        [self.view addSubview:self.infoView];
+        self.view.scrollEnabled = NO;
+        [self.view reloadData];
+        return YES;
+    }
+    return NO;
+}
+
 - (void)updateListWithTracks:(NSArray *)newTracks {
     // Removed all items?
-    if (!newTracks) {
-        SPTEmptyHistoryViewController *vc = [[%c(SPTEmptyHistoryViewController) alloc] init];
-        self.infoView = vc.view;
-        self.infoView.frame = self.view.frame;
-        [self.view addSubview:self.infoView];
-        [self.view reloadData];
+    if ([self checkEmptyTracks:newTracks])
         return;
-    }
 
     int prevNumberOfTracks = [self.tracks count];
 
@@ -374,9 +395,10 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
             indexPath = [NSIndexPath indexPathForRow:i inSection:0];
             [indexPaths addObject:indexPath];
         }
+
         if (self.infoView) {
             [self.infoView removeFromSuperview];
-            self.infoView = nil;
+            self.view.scrollEnabled = YES;
         }
 
         [self.view insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
