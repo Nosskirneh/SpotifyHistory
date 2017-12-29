@@ -1,9 +1,9 @@
 Package: se.nosskirneh.spotifyhistory
 Name: SpotifyHistory
 Depends: mobilesubstrate
-Version: 0.0.1
+Version: 1.0
 Architecture: iphoneos-arm
-Description: An awesome MobileSubstrate tweak!
+Description: View recently played tracks in Spotify
 Maintainer: Andreas Henriksson
 Author: Andreas Henriksson
 Section: Tweaks
