@@ -151,13 +151,16 @@
 }
 
 - (SPTableHeaderFooterView *)tableView:(SPTTableView *)table viewForFooterInSection:(NSInteger)section {
-    SPTableHeaderFooterView *view = [[%c(SPTableHeaderFooterView) alloc] initWithStyle:1 maxWidth:self.view.frame.size.width];
+    SPTableHeaderFooterView *view = nil;
+    if ([%c(SPTableHeaderFooterView) instancesRespondToSelector:@selector(initWithStyle:maxWidth:)]) {
+        view = [[%c(SPTableHeaderFooterView) alloc] initWithStyle:1 maxWidth:self.view.frame.size.width];
 
-    if (section == 0) {
-        view.text = @"Changing this will take effect immediately, so be aware that choosing a lower value can delete history.";
-        [view setFirstSection:YES];
-    } else if (section == 2) {
-        [view setLastSection:YES];
+        if (section == 0) {
+            view.text = @"Changing this will take effect immediately, so be aware that choosing a lower value can delete history.";
+            [view setFirstSection:YES];
+        } else if (section == 2) {
+            [view setLastSection:YES];
+        }
     }
 
     return view;

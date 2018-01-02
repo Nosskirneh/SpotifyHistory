@@ -21,8 +21,11 @@
                  triggerOffset:(CGFloat)offset {
     if (gesture == leftSwipe) {
         // Add to queue
-        SPTCosmosPlayerQueue *queue = [[%c(SPTCosmosPlayerQueue) alloc] initWithPlayer:self.player];
-        [queue queueTrack:[%c(SPTPlayerTrack) trackWithURI:cell.trackURI]];
+        if (self.player &&
+            [%c(SPTCosmosPlayerQueue) instancesRespondToSelector:@selector(initWithPlayer:)]) {
+            SPTCosmosPlayerQueue *queue = [[%c(SPTCosmosPlayerQueue) alloc] initWithPlayer:self.player];
+            [queue queueTrack:[%c(SPTPlayerTrack) trackWithURI:cell.trackURI]];
+        }
     } else {
         // Remove cell
         NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];

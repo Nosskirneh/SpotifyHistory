@@ -65,9 +65,11 @@ static SPTShareFeatureImplementation *shareFeature;
 - (void)setupNavigationItems {
     %orig;
 
-    SPTCollectionOverviewNavigationModelEntryImplementation *historyNavEntry = [[%c(SPTCollectionOverviewNavigationModelEntryImplementation) alloc] initWithDictionary:HISTORY_ENTRY_DICT];
-    [self.navigationItems addObject:historyNavEntry];
-    [historyNavEntry release];
+    if ([%c(SPTCollectionOverviewNavigationModelEntryImplementation) instancesRespondToSelector:@selector(initWithDictionary:)]) {
+        SPTCollectionOverviewNavigationModelEntryImplementation *historyNavEntry = [[%c(SPTCollectionOverviewNavigationModelEntryImplementation) alloc] initWithDictionary:HISTORY_ENTRY_DICT];
+        [self.navigationItems addObject:historyNavEntry];
+        [historyNavEntry release];
+    }
 }
 
 %end
