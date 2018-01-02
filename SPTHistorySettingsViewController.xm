@@ -228,10 +228,37 @@
         return;
 
     NSMutableArray *trackURLs = [NSMutableArray new];
+    NSMutableSet *trackURLsSet = [NSMutableSet new];
     for (NSDictionary *track in self.prefs[kTracks]) {
         [trackURLs addObject:[NSURL URLWithString:track[@"URI"]]];
+        [trackURLsSet addObject:[NSURL URLWithString:track[@"URI"]]];
     }
 
+    if (trackURLsSet.count < trackURLs.count) {
+        // Found duplicates
+        // Build actions
+        UIAlertAction *skip = [UIAlertAction actionWithTitle:@"Skip Those"
+                                                       style:UIAlertActionStyleCancel
+                                                     handler:^(UIAlertAction *action) {
+                                                         [self presentAddToPlaylistViewControllerWithTrackURLs:[trackURLsSet allObjects]];
+                                                      }];
+        UIAlertAction *all = [UIAlertAction actionWithTitle:@"Add All"
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:^(UIAlertAction *action) {
+                                                        [self presentAddToPlaylistViewControllerWithTrackURLs:trackURLs];
+                                                      }];
+
+        if ([%c(SPTAlertPresenter) instancesRespondToSelector:@selector(alertControllerWithTitle:message:actions:)] &&
+            [%c(SPTAlertPresenter) instancesRespondToSelector:@selector(queueAlertController:)] &&
+            [%c(SPTAlertPresenter) instancesRespondToSelector:@selector(showNextAlert)]) {
+            UIAlertController *alert = [[%c(SPTAlertPresenter) sharedInstance] alertControllerWithTitle:@"Duplicate Songs" message:@"Some of these songs exist several times in history" actions:@[skip, all]];
+            [[%c(SPTAlertPresenter) sharedInstance] queueAlertController:alert];
+            [[%c(SPTAlertPresenter) sharedInstance] showNextAlert];
+        }
+    }
+}
+
+- (void)presentAddToPlaylistViewControllerWithTrackURLs:(NSArray *)trackURLs {
     NSDate *date = [[NSDate alloc] init];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"YYYY-MM-dd"];

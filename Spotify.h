@@ -249,6 +249,9 @@ collectionTestManager:(id)colTestManager
 
 @interface SPTAlertPresenter : NSObject
 + (id)sharedInstance;
+- (UIAlertController *)alertControllerWithTitle:(NSString *)title message:(NSString *)msg actions:(NSArray *)actions;
+- (void)queueAlertController:(UIAlertController *)alert;
+- (void)showNextAlert;
 @end
 
 @interface SPTScannablesContextMenuHeaderView : UIView
