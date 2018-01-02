@@ -25,9 +25,8 @@
 
     // Set lower alpha on tracks not available offline
     NSInteger offlineState = [self.session.offlineManager stateForTrackWithURL:self.trackURI];
-    if ([self.session isOffline] && offlineState == isNotAvailableOffline) {
+    if ([self.session isOffline] && offlineState == isNotAvailableOffline)
         self.alpha = 0.4;
-    }
 }
 
 %end

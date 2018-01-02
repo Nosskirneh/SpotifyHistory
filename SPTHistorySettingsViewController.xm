@@ -41,8 +41,8 @@
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
     if (section == 0)
         return 4;
-    else
-        return 1;
+
+    return 1;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -60,7 +60,7 @@
             cell = [[%c(SPTSettingsButtonTableViewCell) alloc] initWithStyle:UITableViewCellStyleDefault
                                                              reuseIdentifier:cellIdentifier];
 
-        cell.textLabel.text = @"Export as playlist";
+        cell.textLabel.text = @"Export to playlist";
         if (!_playlistFeature || !_prefs[kTracks] || [_prefs[kTracks] count] == 0) {
             cell.button.enabled = NO;
             cell.button.userInteractionEnabled = NO;
@@ -133,9 +133,8 @@
 - (SPTTableViewSectionHeaderView *)tableView:(SPTTableView *)table viewForHeaderInSection:(NSInteger)section {
     static NSString *headerIdentifier = @"header";
     SPTTableViewSectionHeaderView *view = [table dequeueReusableHeaderFooterViewWithIdentifier:headerIdentifier];
-    if (view == nil) {
+    if (view == nil)
         view = [[%c(SPTTableViewSectionHeaderView) alloc] initWithReuseIdentifier:headerIdentifier];
-    }
 
     if (section == 0)
         view.title = @"Saving";
@@ -164,9 +163,8 @@
     return view;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    if (section == 0) {
+    if (section == 0)
         return 69;
-    }
 
     return 0;
 }
@@ -174,19 +172,15 @@
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [table deselectRowAtIndexPath:indexPath animated:YES];
 
-    if (indexPath.section == 1) {
-        // Export
+    if (indexPath.section == 1) // Export
         return [self exportTracks];
-    } else if (indexPath.section == 2) {
-        // Erase
+    else if (indexPath.section == 2) // Erase
         return [self removeHistory];
-    }
 
     // Max size
     // Same cell as already picked?
-    if ([self.currentIndexPath isEqual:indexPath]) {
+    if ([self.currentIndexPath isEqual:indexPath])
         return;
-    }
 
     SettingsMultipleChoiceIntegerTableViewCell *cell = nil;
     // Unmark the previously cell
@@ -205,9 +199,9 @@
     if (cell.value != 0 && mutablePrefs[kTracks] &&
         [mutablePrefs[kTracks] count] > cell.value) {
         NSMutableArray *tracks = [mutablePrefs[kTracks] mutableCopy];
-        for (int i = cell.value; i < tracks.count;) {
+        for (int i = cell.value; i < tracks.count;)
             [tracks removeLastObject];
-        }
+
         mutablePrefs[kTracks] = tracks;
 
         // Update list
@@ -216,9 +210,8 @@
     }
 
     self.prefs = mutablePrefs;
-    if (![mutablePrefs writeToFile:prefPath atomically:YES]) {
+    if (![mutablePrefs writeToFile:prefPath atomically:YES])
         HBLogError(@"Could not save %@ to path %@", mutablePrefs, prefPath);
-    }
 
     self.currentIndexPath = indexPath;
 }
@@ -266,9 +259,8 @@
     // Commit the murder
     NSMutableDictionary *mutablePrefs = [self.prefs mutableCopy];
     mutablePrefs[kTracks] = nil;
-    if (![mutablePrefs writeToFile:prefPath atomically:YES]) {
+    if (![mutablePrefs writeToFile:prefPath atomically:YES])
         HBLogError(@"Could not save %@ to path %@", mutablePrefs, prefPath);
-    }
     self.prefs = mutablePrefs;
 
     // Update list

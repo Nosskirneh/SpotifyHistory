@@ -3,8 +3,8 @@
 #define kMaxSize @"maxSize"
 
 enum {
-    inCollectionEnum = 0,
-    notInCollectionEnum = 2
+    inCollection = 0,
+    notInCollection = 2
 };
 
 enum {
@@ -13,8 +13,8 @@ enum {
 };
 
 enum {
-    LEFT_SWIPE = 1,
-    RIGHT_SWIPE = 2
+    leftSwipe = 1,
+    rightSwipe = 2
 };
 
 // Data objects

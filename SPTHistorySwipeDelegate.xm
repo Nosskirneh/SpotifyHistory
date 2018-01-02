@@ -19,8 +19,7 @@
             didCompleteGesture:(NSInteger)gesture
         withHorizontalVelocity:(CGFloat)velocity
                  triggerOffset:(CGFloat)offset {
-
-    if (gesture == LEFT_SWIPE) {
+    if (gesture == leftSwipe) {
         // Add to queue
         SPTCosmosPlayerQueue *queue = [[%c(SPTCosmosPlayerQueue) alloc] initWithPlayer:self.player];
         [queue queueTrack:[%c(SPTPlayerTrack) trackWithURI:cell.trackURI]];

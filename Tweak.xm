@@ -151,20 +151,16 @@ static SPTHistoryViewController *historyVC;
     static double timestampLastTrackChange;
 
     // Prevent timer from resetting when saving to/removing from collection
-    if ([statefulPlayer.queue isTrack:self.currentTrack equalToTrack:track]) {
+    if ([statefulPlayer.queue isTrack:self.currentTrack equalToTrack:track])
         return %orig;
-    }
 
     if (self.currentTrack && timestampLastTrackChange) {
         double current = [[NSDate date] timeIntervalSince1970];
-        HBLogDebug(@"diff: %f", current - timestampLastTrackChange);
         if (current - timestampLastTrackChange > 10) {
             // Save previously track to history
-
             NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
-            if (!prefs) {
+            if (!prefs)
                 prefs = [[NSMutableDictionary alloc] init];
-            }
 
             NSDictionary *tr = [self exportTrack];
 
@@ -190,13 +186,11 @@ static SPTHistoryViewController *historyVC;
 
             prefs[kTracks] = tracks;
             [tracks release];
-            if (![prefs writeToFile:prefPath atomically:YES]) {
+            if (![prefs writeToFile:prefPath atomically:YES])
                 HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
-            }
 
-            if (historyVC) {
+            if (historyVC)
                 [historyVC updateListWithTracks:tracks];
-            }
 
             [prefs release];
         }
@@ -212,7 +206,7 @@ static SPTHistoryViewController *historyVC;
 %end
 
 
-/* Get references to object */
+/* Get references to objects */
 
 // Used to fetch images in list
 %hook SPTGLUEImageLoader
@@ -318,7 +312,7 @@ featureSettingsItemFactory:(id)arg2
 
 %end
 
-
+// Used to present share options from track
 %hook SPTShareFeatureImplementation
 
 - (id)init {
@@ -345,7 +339,6 @@ featureSettingsItemFactory:(id)arg2
 %hook SPSession
 
 - (id)initWithCore:(id)arg1 coreCreateOptions:(id)arg2 isPerfTracingEnabled:(id)arg3 core:(id)arg4 session:(id)arg5 accesspointHandler:(id)arg6 serverTime:(id)arg7 connectivityManager:(id)arg8 scheduler:(id)arg9 clientVersionString:(id)arg10 acceptLanguages:(id)arg11 {
-    //HBLogDebug(@"init");
     return session = %orig;
 }
 
@@ -360,11 +353,12 @@ featureSettingsItemFactory:(id)arg2
     %orig;
 
     NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
+    if (!prefs)
+        return;
     prefs[kTracks] = @[];
 
-    if (![prefs writeToFile:prefPath atomically:YES]) {
+    if (![prefs writeToFile:prefPath atomically:YES])
         HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
-    }
 }
 
 %end
