@@ -35,7 +35,7 @@
         [tracks removeObjectAtIndex:indexPath.row];
 
         prefs[kTracks] = tracks;
-        if (![prefs writeToFile:prefPath atomically:YES]) {
+        if (![prefs writeToFile:prefPath atomically:NO]) {
             HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
         }
 

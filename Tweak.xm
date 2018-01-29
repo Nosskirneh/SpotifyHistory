@@ -156,7 +156,7 @@ static SPTHistoryViewController *historyVC;
 
             prefs[kTracks] = tracks;
             [tracks release];
-            if (![prefs writeToFile:prefPath atomically:YES])
+            if (![prefs writeToFile:prefPath atomically:NO])
                 HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
 
             if (historyVC)
@@ -261,7 +261,7 @@ static SPTHistoryViewController *historyVC;
         return;
     prefs[kTracks] = @[];
 
-    if (![prefs writeToFile:prefPath atomically:YES])
+    if (![prefs writeToFile:prefPath atomically:NO])
         HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
 }
 
