@@ -273,7 +273,8 @@
                                                                              trackURL:cell.trackURI
                                                                           imageLoader:self.contextImageLoader
                                                                            senderView:sender];
-            vc.currentPopoverController = [[%c(SPTPopoverController) alloc] initWithContentViewController:vc];
+            SPNavigationController *navController = [[%c(SPNavigationController) alloc] initWithRootViewController:vc];
+            vc.currentPopoverController = [[%c(SPTPopoverController) alloc] initWithContentViewController:navController];
             SPTContextMenuIpadPresenterImplementation *contextPresenter = [[%c(SPTContextMenuIpadPresenterImplementation) alloc] initWithPopoverController:vc.currentPopoverController];
             [contextPresenter presentWithSenderView:sender permittedArrowDirections:UIPopoverArrowDirectionRight animated:YES];
         }
