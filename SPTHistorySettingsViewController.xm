@@ -206,17 +206,22 @@
             [tracks removeLastObject];
 
         mutablePrefs[kTracks] = tracks;
+        [self savePreferences:mutablePrefs];
 
         // Update list
         if (self.historyViewController)
             [_historyViewController updateListWithTracks:tracks];
+    } else {
+        [self savePreferences:mutablePrefs];
     }
 
     self.prefs = mutablePrefs;
-    if (![mutablePrefs writeToFile:prefPath atomically:YES])
-        HBLogError(@"Could not save %@ to path %@", mutablePrefs, prefPath);
-
     self.currentIndexPath = indexPath;
+}
+
+- (void)savePreferences:(NSDictionary *)prefs {
+    if (![prefs writeToFile:prefPath atomically:NO])
+        HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
 }
 
 - (CGFloat)tableView:(UITableView *)table heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -289,8 +294,7 @@
     // Commit the murder
     NSMutableDictionary *mutablePrefs = [self.prefs mutableCopy];
     mutablePrefs[kTracks] = nil;
-    if (![mutablePrefs writeToFile:prefPath atomically:YES])
-        HBLogError(@"Could not save %@ to path %@", mutablePrefs, prefPath);
+    [self savePreferences:mutablePrefs];
     self.prefs = mutablePrefs;
 
     // Update list
