@@ -19,31 +19,21 @@
  nowPlayingBarHeight:(CGFloat)height
          imageLoader:(SPTGLUEImageLoader *)imageLoader
       statefulPlayer:(SPTStatefulPlayer *)statefulPlayer
-modalPresentationController:(SPTModalPresentationControllerImplementation *)modalPresentationController
   contextImageLoader:(SPTImageLoaderImplementation *)contextImageLoader
      playlistFeature:(PlaylistFeatureImplementation *)playlistFeature
-  collectionPlatform:(SPTCollectionPlatformImplementation *)collectionPlatform
-      linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
-scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
-        radioManager:(SPTRadioManager *)radioManager
              session:(SPSession *)session
-   dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory
-        shareFeature:(SPTShareFeatureImplementation *)shareFeature {
+  contextMenuFeature:(SPContextMenuFeatureImplementation *)contextMenuFeature {
     if (self = [super init]) {
         self.tracks = tracks;
         self.nowPlayingBarHeight = height;
+        self.sourceURL = [NSURL URLWithString:@"spotify:collection:history"];
         self.imageLoader = imageLoader;
         self.statefulPlayer = statefulPlayer;
-        self.modalPresentationController = modalPresentationController;
+        self.modalPresentationController = contextMenuFeature.UIPresentationService.modalPresentationController;
         self.contextImageLoader = contextImageLoader;
         self.playlistFeature = playlistFeature;
-        self.collectionPlatform = collectionPlatform;
-        self.linkDispatcher = linkDispatcher;
-        self.scannablesTestManager = scannablesTestManager;
-        self.radioManager = radioManager;
         self.session = session;
-        self.dataLoaderFactory = dataLoaderFactory;
-        self.shareFeature = shareFeature;
+        self.contextMenuFeature = contextMenuFeature;
 
         // Navigation items
         self.navigationItem = [[UINavigationItem alloc] initWithTitle:@"History"];
@@ -131,6 +121,11 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
     [cell setSelectedBackgroundView:bgColorView];
 
     // Accessory button
+    CGRect frame = CGRectMake(self.view.frame.size.width - 48,
+                              [self tableView:table heightForRowAtIndexPath:indexPath] / 2 - 48 / 2,
+                              48.0, 48.0);
+    UIView *contextButtonContainer = [[UIView alloc] initWithFrame:frame];
+
     SPTTrackContextButton *button = [SPTTrackContextButton buttonWithType:UIButtonTypeCustom];
     [button addTarget:self
                action:@selector(showContextMenu:)
@@ -138,12 +133,12 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
 
     UIImage *dots = [UIImage imageForSPTIcon:23 size:CGSizeMake(20.0, 20.0)];
     [button setImage:dots forState:UIControlStateNormal];
-    button.frame = CGRectMake(self.view.frame.size.width - 48,
-                              [self tableView:table heightForRowAtIndexPath:indexPath] / 2 - 48 / 2,
-                              48.0, 48.0);
+    button.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
     button.indexPath = indexPath;
     button.cell = cell;
-    [cell addSubview:button];
+    [contextButtonContainer addSubview:button];
+
+    [cell addSubview:contextButtonContainer];
 
     // Texts
     UIFont *font = [UIFont fontWithName:@"CircularSpUI-Book" size:16];
@@ -184,177 +179,130 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
     if (!self.modalPresentationController)
         return;
 
-    static NSURL *sourceURL = [NSURL URLWithString:@"spotify:history"];
-
     SPTTrackTableViewCell *cell = sender.cell;
 
     /* Build actions */
-    NSMutableArray *_actions = [NSMutableArray new];
+    NSMutableArray *tasks = [NSMutableArray new];
+
+    // Collection
+    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:actionIdentifier:)]) {
+        SPTask *collection = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
+                                                                  logContext:nil
+                                                                   sourceURL:self.sourceURL
+                                                            actionIdentifier:@"collection"];
+        [tasks addObject:collection];
+    }
 
     // Add to playlist
-    SPTAddToPlaylistAction *toPlaylist = nil;
-    if (self.playlistFeature &&
-        [%c(SPTAddToPlaylistAction) instancesRespondToSelector:@selector(initWithTrackURLs:addEntityURL:defaultPlaylistName:playlistFeature:logContext:sourceURL:contextSourceURL:)]) {
-        toPlaylist = [[%c(SPTAddToPlaylistAction) alloc] initWithTrackURLs:@[cell.trackURI]
-                                                              addEntityURL:nil
-                                                       defaultPlaylistName:cell.trackName
-                                                           playlistFeature:self.playlistFeature
-                                                                logContext:nil
-                                                                 sourceURL:sourceURL
-                                                              contextSourceURL:nil];
-        [_actions addObject:toPlaylist];
+    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURIs:logContext:sourceURL:containerURL:playlistName:actionIdentifier:contextSourceURL:)]) {
+        SPTask *playlist = [self.contextMenuFeature.actionsFactory actionForURIs:@[cell.trackURI]
+                                                                 logContext:nil
+                                                                  sourceURL:self.sourceURL
+                                                               containerURL:nil
+                                                               playlistName:cell.trackName
+                                                           actionIdentifier:@"add-to-playlist"
+                                                           contextSourceURL:self.sourceURL];
+        [tasks addObject:playlist];
     }
 
     // Add to queue
-    if (self.statefulPlayer) {
+    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:tracks:actionIdentifier:)]) {
         SPTPlayerTrack *track = [%c(SPTPlayerTrack) trackWithURI:cell.trackURI];
-        SPTCosmosPlayerQueue *queue = nil;
-        if ([%c(SPTCosmosPlayerQueue) instancesRespondToSelector:@selector(initWithPlayer:)]) {
-            queue = [[%c(SPTCosmosPlayerQueue) alloc] initWithPlayer:self.statefulPlayer.player];
-        }
-
-        SPTQueueTrackAction *toQueue = nil;
-        if (queue &&
-            [%c(SPTQueueTrackAction) instancesRespondToSelector:@selector(initWithTrack:player:playerQueue:upsellManager:logContext:alertController:)]) {
-            toQueue = [[%c(SPTQueueTrackAction) alloc] initWithTrack:track
-                                                            player:self.statefulPlayer.player
-                                                       playerQueue:queue
-                                                     upsellManager:nil
-                                                        logContext:nil
-                                                   alertController:[%c(SPTAlertPresenter) sharedInstance]];
-            [_actions addObject:toQueue];
-        }
-    }
-
-    // Start radio
-    SPTStartRadioAction *toRadio = nil;
-    if (self.radioManager &&
-        [%c(SPTStartRadioAction) instancesRespondToSelector:@selector(initWithSeedURL:session:radioManager:logContext:)]) {
-        toRadio = [[%c(SPTStartRadioAction) alloc] initWithSeedURL:cell.trackURI
-                                                           session:self.session
-                                                      radioManager:self.radioManager
-                                                        logContext:nil];
-        [_actions addObject:toRadio];
+        SPTask *queue = [self.contextMenuFeature.actionsFactory actionForURI:nil
+                                                             logContext:nil
+                                                              sourceURL:self.sourceURL
+                                                                 tracks:@[track]
+                                                       actionIdentifier:@"queue-track"];
+        [tasks addObject:queue];
     }
 
     // Share
-    SPTShareAction *toShare = nil;
-    if (self.shareFeature &&
-        [%c(SPTShareAction) instancesRespondToSelector:@selector(initWithItemURL:itemName:creatorName:sourceName:imageURL:sourceUrl:shareType:clipboardLinkTitle:session:shareFeature:logContext:)]) {
-        toShare = [[%c(SPTShareAction) alloc] initWithItemURL:cell.trackURI
-                                                     itemName:cell.trackName
-                                                  creatorName:cell.artist
-                                                   sourceName:cell.album
-                                                     imageURL:cell.imageURL
-                                                    sourceUrl:cell.trackURI
-                                                    shareType:3
-                                           clipboardLinkTitle:nil
-                                                      session:self.session
-                                                 shareFeature:self.shareFeature
-                                                   logContext:nil];
-        [_actions addObject:toShare];
+    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:itemName:creatorName:sourceName:imageURL:clipboardLinkTitle:actionIdentifier:)]) {
+        SPTask *share = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
+                                                             logContext:nil
+                                                              sourceURL:self.sourceURL
+                                                               itemName:cell.trackName
+                                                            creatorName:cell.artist
+                                                             sourceName:cell.artist
+                                                               imageURL:cell.imageURL
+                                                     clipboardLinkTitle:nil
+                                                       actionIdentifier:@"share-track"];
+        [tasks addObject:share];
     }
 
-    // Go to artist and album
-    SPTGoToURLAction *toArtist = nil;
-    SPTGoToURLAction *toAlbum  = nil;
-    if ([%c(SPTGoToURLAction) instancesRespondToSelector:@selector(initWithURL:title:logEventName:order:logContext:)]) {
-        toArtist = [[%c(SPTGoToURLAction) alloc] initWithURL:cell.artistURI
-                                                       title:@"View Artist"
-                                                logEventName:nil
-                                                       order:0
-                                                  logContext:nil];
-        [_actions addObject:toArtist];
-
-        toAlbum = [[%c(SPTGoToURLAction) alloc] initWithURL:cell.albumURI
-                                                      title:@"View Album"
-                                               logEventName:nil
-                                                      order:0
-                                                 logContext:nil];
-        [_actions addObject:toAlbum];
+    // Start radio
+    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:actionIdentifier:)]) {
+        SPTask *radio = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
+                                                             logContext:nil
+                                                              sourceURL:self.sourceURL
+                                                       actionIdentifier:@"start-radio"];
+        [tasks addObject:radio];
     }
 
-    /* Check collection state */
-    if (self.collectionPlatform && 
-        [%c(SPTCollectionPlatformImplementation) instancesRespondToSelector:@selector(collectionStateForURL:completion:)]) {
-        [self.collectionPlatform collectionStateForURL:cell.trackURI completion:^void(NSInteger value) {
-            BOOL inCollection = NO;
-            if (value == inCollection)
-                inCollection = YES;
-
-            SPTCollectionPlatformAddRemoveFromCollectionAction *toCollection = nil;
-            if ([%c(SPTCollectionPlatformAddRemoveFromCollectionAction) instancesRespondToSelector:@selector(initWithLink:collectionPlatform:collectionTestManager:wasInCollection:logContext:sourceURL:)]) {
-                toCollection = [[%c(SPTCollectionPlatformAddRemoveFromCollectionAction) alloc] initWithLink:cell.trackURI
-                                                                                         collectionPlatform:self.collectionPlatform
-                                                                                      collectionTestManager:self.collectionPlatform.collectionTestManager
-                                                                                            wasInCollection:inCollection
-                                                                                                 logContext:nil
-                                                                                                  sourceURL:sourceURL];
-                [_actions insertObject:toCollection atIndex:0];
-            }
-
-            [self presentContextMenuWithActions:_actions fromCell:cell];
-        }];
-    } else {
-        // If the collection state for some reason couldn't be checked,
-        // present context menu with the remaining actions
-        [self presentContextMenuWithActions:_actions fromCell:cell];
+    // Go to album
+    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(viewAlbumWithAlbumURL:logContext:)]) {
+        SPTask *album = [self.contextMenuFeature.actionsFactory viewAlbumWithAlbumURL:cell.albumURI logContext:nil];
+        [tasks addObject:album];
     }
+
+    // Go to artist
+    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(viewArtistWithURL:logContext:)]) {
+        SPTask *artist = [self.contextMenuFeature.actionsFactory viewArtistWithURL:cell.artistURI logContext:nil];
+        [tasks addObject:artist];
+    }
+
+    [self presentContextMenuWithTasks:tasks fromCell:cell fromButton:sender];
 }
 
-- (void)presentContextMenuWithActions:(NSArray *)_actions fromCell:(SPTTrackTableViewCell *)cell {
-    /* Create headerView */
-    SPTScannablesDependencies *dependencies = nil;
-    if ([%c(SPTScannablesDependencies) instancesRespondToSelector:@selector(initWithSpotifyApplication:linkDispatcher:device:theme:testManager:logger:)]) {
-        dependencies = [[%c(SPTScannablesDependencies) alloc] initWithSpotifyApplication:[UIApplication sharedApplication]
-                                                                          linkDispatcher:self.linkDispatcher
-                                                                                  device:[UIDevice currentDevice]
-                                                                                   theme:[%c(SPTTheme) catTheme]
-                                                                             testManager:self.scannablesTestManager
-                                                                                  logger:nil];
-    }
-
+- (void)presentContextMenuWithTasks:(NSArray *)tasks
+                           fromCell:(SPTTrackTableViewCell *)cell
+                         fromButton:(SPTTrackContextButton *)sender {
     NSString *subtitle = [NSString stringWithFormat:@"%@ • %@", cell.artist, cell.album];
-    SPTDataLoaderCancellationTokenFactoryImplementation *cancelFact = [[%c(SPTDataLoaderCancellationTokenFactoryImplementation) alloc] init];
 
-    SPTDataLoader *dataLoader = nil;
-    if ([%c(SPTDataLoader) respondsToSelector:@selector(dataLoaderWithRequestResponseHandlerDelegate:cancellationTokenFactory:)]) {
-        dataLoader = [%c(SPTDataLoader) dataLoaderWithRequestResponseHandlerDelegate:self.dataLoaderFactory
-                                                            cancellationTokenFactory:cancelFact];
+    // iPad
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        SPTContextMenuViewControllerIPad *vc = nil;
+        if ([%c(SPTContextMenuViewControllerIPad) instancesRespondToSelector:@selector(initWithHeaderImageURL:headerImagePlaceholder:title:subtitle:metadataTitle:actions:entityURL:trackURL:imageLoader:senderView:)]) {
+            vc = [[%c(SPTContextMenuViewControllerIPad) alloc] initWithHeaderImageURL:cell.imageURL
+                                                               headerImagePlaceholder:[UIImage trackSPTPlaceholderWithSize:0]
+                                                                                title:cell.trackName
+                                                                             subtitle:subtitle
+                                                                        metadataTitle:nil
+                                                                                tasks:tasks
+                                                                            entityURL:self.sourceURL
+                                                                             trackURL:cell.trackURI
+                                                                          imageLoader:self.contextImageLoader
+                                                                           senderView:sender];
+            vc.currentPopoverController = [[%c(SPTPopoverController) alloc] initWithContentViewController:vc];
+            SPTContextMenuIpadPresenterImplementation *contextPresenter = [[%c(SPTContextMenuIpadPresenterImplementation) alloc] initWithPopoverController:vc.currentPopoverController];
+            [contextPresenter presentWithSenderView:sender permittedArrowDirections:UIPopoverArrowDirectionRight animated:YES];
+        }
+        return;
     }
 
-    SPTScannablesRemoteDataSource *dataSource = nil;
-    if (dataLoader &&
-        [%c(SPTScannablesRemoteDataSource) instancesRespondToSelector:@selector(initWithDataLoader:)]) {
-        dataSource = [[%c(SPTScannablesRemoteDataSource) alloc] initWithDataLoader:dataLoader];
-    }
-
+    // iPhone
     SPTScannablesContextMenuHeaderView *headerView = nil;
     if ([%c(SPTScannablesContextMenuHeaderView) instancesRespondToSelector:@selector(initWithTitle:subtitle:entityURL:dataSource:onboardingPresenter:authorizationRequester:dependencies:alertController:)]) {
         headerView = [[%c(SPTScannablesContextMenuHeaderView) alloc] initWithTitle:cell.trackName
                                                                           subtitle:subtitle
                                                                          entityURL:cell.trackURI
-                                                                        dataSource:dataSource
-                                                               onboardingPresenter:nil
-                                                            authorizationRequester:nil
-                                                                      dependencies:dependencies
+                                                                        dataSource:self.contextMenuFeature.scannablesService.scannablesDataSource
+                                                               onboardingPresenter:self.contextMenuFeature.scannablesService.onboardingPresenter
+                                                            authorizationRequester:self.contextMenuFeature.scannablesService.authorizationRequester
+                                                                      dependencies:self.contextMenuFeature.scannablesService.dependencies
                                                                    alertController:[%c(SPTAlertPresenter) sharedInstance]];
     }
 
     /* Create view controller */
-    NSArray *actions = [%c(SPTContextMenuTaskAction) actionsWithActions:_actions];
-
-    SPTContextMenuOptionsImplementation *options = [[%c(SPTContextMenuOptionsImplementation) alloc] init];
-    [options setShouldShowScannable:YES];
-
+    SPTContextMenuOptionsFactoryImplementation *options = [self.contextMenuFeature.contextMenuOptionsFactory contextMenuOptionsWithScannableEnabled:YES];
     SPTContextMenuModel *model = [[%c(SPTContextMenuModel) alloc] initWithOptions:options player:self.statefulPlayer.player];
     GLUETheme *theme = [%c(GLUETheme) themeWithSPTTheme:[%c(SPTTheme) catTheme]];
 
     SPTContextMenuViewController *vc = nil;
-    if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:actions:entityURL:imageLoader:headerView:modalPresentationController:logger:model:theme:notificationCenter:)]) {
+    if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:logger:model:theme:notificationCenter:)]) {
         // 8.4.31
         vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
-                                                                      actions:actions
+                                                                        tasks:tasks
                                                                     entityURL:cell.trackURI
                                                                   imageLoader:self.contextImageLoader
                                                                    headerView:headerView
@@ -363,10 +311,10 @@ scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestMa
                                                                         model:model
                                                                         theme:theme
                                                            notificationCenter:[NSNotificationCenter defaultCenter]];
-    } else if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:actions:entityURL:imageLoader:headerView:modalPresentationController:model:theme:notificationCenter:)]) {
+    } else if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:model:theme:notificationCenter:)]) {
         // 8.4.34
         vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
-                                                                      actions:actions
+                                                                        tasks:tasks
                                                                     entityURL:cell.trackURI
                                                                   imageLoader:self.contextImageLoader
                                                                    headerView:headerView

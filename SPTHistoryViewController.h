@@ -10,28 +10,18 @@
 @property (nonatomic, assign) SPTModalPresentationControllerImplementation *modalPresentationController;
 @property (nonatomic, assign) SPTImageLoaderImplementation *contextImageLoader;
 @property (nonatomic, assign) PlaylistFeatureImplementation *playlistFeature;
-@property (nonatomic, assign) SPTCollectionPlatformImplementation *collectionPlatform;
-@property (nonatomic, assign) SPTLinkDispatcherImplementation *linkDispatcher;
-@property (nonatomic, assign) SPTScannablesTestManagerImplementation *scannablesTestManager;
-@property (nonatomic, assign) SPTRadioManager *radioManager;
 @property (nonatomic, assign) SPSession *session;
-@property (nonatomic, assign) SPTDataLoaderFactory *dataLoaderFactory;
-@property (nonatomic, assign) SPTShareFeatureImplementation *shareFeature;
+@property (nonatomic, assign) SPContextMenuFeatureImplementation *contextMenuFeature;
+@property (nonatomic, strong) NSURL *sourceURL;
 @property (nonatomic, assign) UINavigationItem *navigationItem;
 - (id)initWithTracks:(NSArray *)tracks
  nowPlayingBarHeight:(CGFloat)height
          imageLoader:(SPTGLUEImageLoader *)imageLoader
       statefulPlayer:(SPTStatefulPlayer *)statefulPlayer
-modalPresentationController:(SPTModalPresentationControllerImplementation *)modalPresentationController
   contextImageLoader:(SPTImageLoaderImplementation *)contextImageLoader
      playlistFeature:(PlaylistFeatureImplementation *)playlistFeature
-  collectionPlatform:(SPTCollectionPlatformImplementation *)collectionPlatform
-      linkDispatcher:(SPTLinkDispatcherImplementation *)linkDispatcher
-scannablesTestManager:(SPTScannablesTestManagerImplementation *)scannablesTestManager
-        radioManager:(SPTRadioManager *)radioManager
              session:(SPSession *)session
-   dataLoaderFactory:(SPTDataLoaderFactory *)dataLoaderFactory
-        shareFeature:(SPTShareFeatureImplementation *)shareFeature;
+  contextMenuFeature:(SPContextMenuFeatureImplementation *)contextMenuFeature;
 - (void)updateListWithTracks:(NSArray *)tracks;
 - (BOOL)checkEmptyTracks:(NSArray *)newTracks;
 @end

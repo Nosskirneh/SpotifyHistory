@@ -3,37 +3,11 @@
 
 static SPTGLUEImageLoader *imageLoader;
 static SPTStatefulPlayer *statefulPlayer;
-static SPTModalPresentationControllerImplementation *modalPresentationController;
 static SPTImageLoaderImplementation *contextImageLoader;
 static PlaylistFeatureImplementation *playlistFeature;
-static SPTCollectionPlatformImplementation *collectionPlatform;
-static SPTScannablesTestManagerImplementation *scannablesTestManager;
-static SPTRadioManager *radioManager;
 static SPSession *session;
-static SPTDataLoaderFactory *dataLoaderFactory;
-static SPTShareFeatureImplementation *shareFeature;
+static SPContextMenuFeatureImplementation *contextMenuFeature;
 
-
-// Help methods to create a context actions
-%hook SPTContextMenuTaskAction
-
-%new
-+ (id)actionWithAction:(SPAction *)action {
-    SPTContextMenuTaskAction *contextAction = [[%c(SPTContextMenuTaskAction) alloc] init];
-    contextAction.action = action;
-    return contextAction;
-}
-
-%new
-+ (NSArray *)actionsWithActions:(NSArray<SPAction *> *)actions {
-    NSMutableArray *contextActions = [NSMutableArray new];
-    for (SPAction *action in actions) {
-        [contextActions addObject:[%c(SPTContextMenuTaskAction) actionWithAction:action]];
-    }
-    return contextActions;
-}
-
-%end
 
 // Help method to create a checkmark in settings
 %hook SettingsMultipleChoiceTableViewCell
@@ -106,16 +80,10 @@ static SPTHistoryViewController *historyVC;
                                                  nowPlayingBarHeight:npBarHeight
                                                          imageLoader:imageLoader
                                                       statefulPlayer:statefulPlayer
-                                         modalPresentationController:modalPresentationController
                                                   contextImageLoader:contextImageLoader
                                                      playlistFeature:playlistFeature
-                                                  collectionPlatform:collectionPlatform
-                                                      linkDispatcher:self.linkDispatcher
-                                               scannablesTestManager:scannablesTestManager
-                                                        radioManager:radioManager
                                                              session:session
-                                                   dataLoaderFactory:dataLoaderFactory
-                                                        shareFeature:shareFeature];
+                                                  contextMenuFeature:contextMenuFeature];
 
         [self.navigationController pushViewControllerOnTopOfTheNavigationStack:historyVC animated:YES];
         [table deselectRowAtIndexPath:indexPath animated:NO];
@@ -231,17 +199,6 @@ static SPTHistoryViewController *historyVC;
 %end
 
 
-// Used to present a context menu
-%hook SPTModalPresentationControllerImplementation
-
-- (id)initWithPresenterProvider:(id)arg1
-       modalPresentationMonitor:(id)arg2 {
-    return modalPresentationController = %orig;
-}
-
-%end
-
-
 // Load images in context menu
 %hook SPTImageLoaderImplementation
 
@@ -264,61 +221,6 @@ static SPTHistoryViewController *historyVC;
 - (void)load {
     playlistFeature = self;
     %orig;
-}
-
-%end
-
-
-// Used to add to/remove from collection with context action
-%hook SPTCollectionPlatformImplementation
-
-- (id)initWithCosmosDataLoader:(id)arg1
-              collectionLogger:(id)arg2
-         collectionTestManager:(id)arg3
-            metaViewController:(id)arg4
-               alertController:(id)arg5 {
-    return collectionPlatform = %orig;
-}
-
-%end
-
-
-// Used to load the header view of the context menu
-%hook SPTScannablesTestManagerImplementation
-
-- (id)initWithFeatureFlags:(id)arg1
-featureSettingsItemFactory:(id)arg2
-             localSettings:(id)arg3
-           alertController:(id)arg4 {
-    return scannablesTestManager = %orig;
-}
-
-%end
-
-
-// Used to start radio from track
-%hook SPTRadioManager
-
-- (id)initWithLocalSettings:(id)arg1 abba:(id)arg2 productState:(id)arg3 {
-    return radioManager = %orig;
-}
-
-%end
-
-// Used to fetch images and bar code in context menus
-%hook SPTDataLoaderFactory
-
-+ (id)dataLoaderFactoryWithRequestResponseHandlerDelegate:(id)arg1 authorisers:(id)arg2 {
-    return dataLoaderFactory = %orig;
-}
-
-%end
-
-// Used to present share options from track
-%hook SPTShareFeatureImplementation
-
-- (id)init {
-    return shareFeature = %orig;
 }
 
 %end
@@ -361,6 +263,16 @@ featureSettingsItemFactory:(id)arg2
 
     if (![prefs writeToFile:prefPath atomically:YES])
         HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
+}
+
+%end
+
+
+// Holds references to useful implementations
+%hook SPContextMenuFeatureImplementation
+
+- (id)init {
+    return contextMenuFeature = %orig;
 }
 
 %end
