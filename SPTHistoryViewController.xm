@@ -182,15 +182,6 @@
     /* Build actions */
     NSMutableArray *tasks = [NSMutableArray new];
 
-    // Collection
-    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:actionIdentifier:)]) {
-        SPTask *collection = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
-                                                                  logContext:nil
-                                                                   sourceURL:self.sourceURL
-                                                            actionIdentifier:@"collection"];
-        [tasks addObject:collection];
-    }
-
     // Add to playlist
     if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURIs:logContext:sourceURL:containerURL:playlistName:actionIdentifier:contextSourceURL:)]) {
         SPTask *playlist = [self.contextMenuFeature.actionsFactory actionForURIs:@[cell.trackURI]
@@ -228,8 +219,15 @@
         [tasks addObject:share];
     }
 
-    // Start radio
     if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:actionIdentifier:)]) {
+        // Collection
+        SPTask *collection = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
+                                                                  logContext:nil
+                                                                   sourceURL:self.sourceURL
+                                                            actionIdentifier:@"collection"];
+        [tasks insertObject:collection atIndex:0];
+
+        // Start radio
         SPTask *radio = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
                                                              logContext:nil
                                                               sourceURL:self.sourceURL
