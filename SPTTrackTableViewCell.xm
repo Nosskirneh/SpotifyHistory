@@ -13,6 +13,7 @@
 - (void)layoutSubviews {
     %orig;
 
+    // Labels
     self.textLabel.frame = CGRectMake(self.textLabel.frame.origin.x,
                                       self.textLabel.frame.origin.y,
                                       self.frame.size.width - 140,
@@ -22,6 +23,16 @@
                                             self.detailTextLabel.frame.origin.y,
                                             self.frame.size.width - 140,
                                             self.detailTextLabel.frame.size.height);
+
+    // Accessory view
+    CGRect adjustedFrame = self.accessoryView.frame;
+    adjustedFrame.origin.x += 20.0f;
+    self.accessoryView.frame = adjustedFrame;
+
+    // Image view
+    adjustedFrame = self.imageView.frame;
+    adjustedFrame.origin.x -= 4.0f;
+    self.imageView.frame = adjustedFrame;
 
     // Set lower alpha on tracks not available offline
     NSInteger offlineState = [self.session.offlineManager stateForTrackWithURL:self.trackURI];

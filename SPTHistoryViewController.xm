@@ -124,7 +124,6 @@
     CGRect frame = CGRectMake(self.view.frame.size.width - 48,
                               [self tableView:table heightForRowAtIndexPath:indexPath] / 2 - 48 / 2,
                               48.0, 48.0);
-    UIView *contextButtonContainer = [[UIView alloc] initWithFrame:frame];
 
     SPTTrackContextButton *button = [SPTTrackContextButton buttonWithType:UIButtonTypeCustom];
     [button addTarget:self
@@ -133,12 +132,11 @@
 
     UIImage *dots = [UIImage imageForSPTIcon:23 size:CGSizeMake(20.0, 20.0)];
     [button setImage:dots forState:UIControlStateNormal];
-    button.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
+    button.frame = frame;
     button.indexPath = indexPath;
     button.cell = cell;
-    [contextButtonContainer addSubview:button];
-
-    [cell addSubview:contextButtonContainer];
+    cell.accessoryView = button;
+    [cell.contentView addSubview:button];
 
     // Texts
     UIFont *font = [UIFont fontWithName:@"CircularSpUI-Book" size:16];
