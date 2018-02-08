@@ -144,9 +144,8 @@ static SPTHistoryViewController *historyVC;
                 NSMutableArray *newTracks = [tracks mutableCopy];
                 [newTracks insertObject:tr atIndex:0];
                 int maxSize = prefs[kMaxSize] ? [prefs[kMaxSize] intValue] : 100;
-                if (newTracks.count > maxSize) {
+                if (newTracks.count > maxSize && maxSize != 0)
                     [newTracks removeLastObject];
-                }
                 tracks = newTracks;
             } else {
                 tracks = [[NSArray alloc] initWithObjects:tr, nil];
