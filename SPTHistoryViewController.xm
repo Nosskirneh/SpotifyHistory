@@ -75,7 +75,7 @@
     self.view.dataSource = self;
     self.view.delegate = self;
     self.view.contentInset = UIEdgeInsetsMake(self.view.contentInset.top,
-                                              self.view.contentInset.left - 4,
+                                              self.view.contentInset.left,
                                               self.view.contentInset.bottom + self.nowPlayingBarHeight,
                                               self.view.contentInset.right);
 }
