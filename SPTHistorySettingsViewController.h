@@ -10,6 +10,7 @@
 @property (nonatomic, assign) SPTHistoryViewController *historyViewController;
 @property (nonatomic, assign) PlaylistFeatureImplementation *playlistFeature;
 @property (nonatomic, assign) NSMutableArray *buttons;
+@property (nonatomic, assign) UIButton *exportButton;
 - (id)initWithNowPlayingBarHeight:(CGFloat)nowPlayingBarHeight
             historyViewController:(SPTHistoryViewController *)historyViewController
                   playlistFeature:(PlaylistFeatureImplementation *)playlistFeature;

@@ -274,7 +274,7 @@
         [_playlistFeature presentAddToPlaylistViewControllerWithTrackURLs:trackURLs
                                                              addEntityURL:nil
                                                       defaultPlaylistName:playlistName
-                                                               senderView:self.view
+                                                               senderView:self.exportButton
                                                                logContext:nil
                                                                 sourceURL:nil
                                                          contextSourceURL:nil];
