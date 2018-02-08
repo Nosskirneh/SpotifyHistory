@@ -1,5 +1,10 @@
 #import "SPTHistorySettingsViewController.h"
 
+@interface UIApplication (iOS10)
+- (void)openURL:(NSURL *)url 
+        options:(NSDictionary<NSString *,id> *)options 
+completionHandler:(void (^)(BOOL success))completion;
+@end
 
 @interface SettingsMultipleChoiceIntegerTableViewCell : SettingsMultipleChoiceTableViewCell
 @property (nonatomic, assign) NSInteger value;
@@ -46,7 +51,7 @@
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 3;
+    return 4;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -66,9 +71,10 @@
             cell.button.userInteractionEnabled = NO;
         }
 
+        self.exportButton = cell.button;
         [self.buttons addObject:cell.button];
         return cell;
-    } else {
+    } else if (indexPath.section == 2) {
         SPTSettingsButtonTableViewCell *cell = [table dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil)
             cell = [[%c(SPTSettingsButtonTableViewCell) alloc] initWithStyle:UITableViewCellStyleDefault
@@ -84,6 +90,16 @@
         }
 
         [self.buttons addObject:cell.button];
+        return cell;
+    } else {
+        SPTSettingsButtonTableViewCell *cell = [table dequeueReusableCellWithIdentifier:cellIdentifier];
+        if (cell == nil)
+            cell = [[%c(SPTSettingsButtonTableViewCell) alloc] initWithStyle:UITableViewCellStyleDefault
+                                                             reuseIdentifier:cellIdentifier];
+
+        cell.textLabel.text = @"Donate";
+        cell.button.glueStyle.normalBackgroundColor = [UIColor colorWithRed:0.11 green:0.73 blue:0.33 alpha:1.0]; // #1DB954
+        cell.button.glueStyle.highlightedBackgroundColor = [UIColor colorWithRed:0.08 green:0.51 blue:0.23 alpha:1.0]; // #14823B
         return cell;
     }
 }
@@ -140,8 +156,10 @@
         view.title = @"Saving";
     else if (section == 1)
         view.title = @"Export";
-    else
+    else if (section == 2)
         view.title = @"Remove";
+    else
+        view.title = @"Donate";
 
     return view;
 }
@@ -158,7 +176,8 @@
         if (section == 0) {
             view.text = @"Changing this will take effect immediately, so be aware that choosing a lower value can delete history.";
             [view setFirstSection:YES];
-        } else if (section == 2) {
+        } else if (section == 3) {
+            view.text = @"SpotifyHistory is free. Please consider donating to support the continuous development that is required to support new versions of Spotify.";
             [view setLastSection:YES];
         }
     }
@@ -167,7 +186,9 @@
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
     if (section == 0)
-        return 69;
+        return 50;
+    else if (section == 3)
+        return 80;
 
     return 0;
 }
@@ -179,6 +200,8 @@
         return [self exportTracks];
     else if (indexPath.section == 2) // Erase
         return [self removeHistory];
+    else if (indexPath.section == 3) // Donate
+        return [self donate];
 
     // Max size
     // Same cell as already picked?
@@ -310,6 +333,18 @@
         [[[UIApplication sharedApplication] keyWindow] addSubview:view];
         [view animateShowing];
         [view performSelector:@selector(animateHiding) withObject:nil afterDelay:2];
+    }
+}
+
+- (void)donate {
+    UIApplication *application = [UIApplication sharedApplication];
+    NSURL *URL = [NSURL URLWithString:@"https://paypal.me/nosskirneh"];
+
+    if ([application respondsToSelector:@selector(openURL:options:completionHandler:)]) {
+        [application openURL:URL options:nil completionHandler:nil];
+    } else {
+        // iOS 9 and below
+        [application openURL:URL];
     }
 }
 
