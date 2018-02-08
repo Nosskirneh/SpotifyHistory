@@ -14,18 +14,18 @@
     %orig;
 
     // Labels
-    self.textLabel.frame = CGRectMake(self.textLabel.frame.origin.x,
-                                      self.textLabel.frame.origin.y,
-                                      self.frame.size.width - 140,
-                                      self.textLabel.frame.size.height);
+    CGRect adjustedFrame = self.textLabel.frame;
+    adjustedFrame.origin.x -= 7;
+    adjustedFrame.size.width = self.frame.size.width - 125;
+    self.textLabel.frame = adjustedFrame;
 
-    self.detailTextLabel.frame = CGRectMake(self.detailTextLabel.frame.origin.x,
-                                            self.detailTextLabel.frame.origin.y,
-                                            self.frame.size.width - 140,
-                                            self.detailTextLabel.frame.size.height);
+    adjustedFrame = self.detailTextLabel.frame;
+    adjustedFrame.origin.x -= 7;
+    adjustedFrame.size.width = self.frame.size.width - 125;
+    self.detailTextLabel.frame = adjustedFrame;
 
     // Accessory view
-    CGRect adjustedFrame = self.accessoryView.frame;
+    adjustedFrame = self.accessoryView.frame;
     adjustedFrame.origin.x += 20.0f;
     self.accessoryView.frame = adjustedFrame;
 
