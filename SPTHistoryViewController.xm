@@ -280,13 +280,18 @@
     // iPhone
     SPTScannablesContextMenuHeaderView *headerView = nil;
     if ([%c(SPTScannablesContextMenuHeaderView) instancesRespondToSelector:@selector(initWithTitle:subtitle:entityURL:dataSource:onboardingPresenter:authorizationRequester:dependencies:alertController:)]) {
+        id dep = nil;
+        if ([self.contextMenuFeature.scannablesService respondsToSelector:@selector(scannableDependencies)]) // >= 8.4.39
+            dep = self.contextMenuFeature.scannablesService.scannableDependencies;
+        else if ([self.contextMenuFeature.scannablesService respondsToSelector:@selector(dependencies)])
+            dep = self.contextMenuFeature.scannablesService.dependencies;
         headerView = [[%c(SPTScannablesContextMenuHeaderView) alloc] initWithTitle:cell.trackName
                                                                           subtitle:subtitle
                                                                          entityURL:cell.trackURI
                                                                         dataSource:self.contextMenuFeature.scannablesService.scannablesDataSource
                                                                onboardingPresenter:self.contextMenuFeature.scannablesService.onboardingPresenter
                                                             authorizationRequester:self.contextMenuFeature.scannablesService.authorizationRequester
-                                                                      dependencies:self.contextMenuFeature.scannablesService.dependencies
+                                                                      dependencies:dep
                                                                    alertController:[%c(SPTAlertPresenter) sharedInstance]];
     }
 

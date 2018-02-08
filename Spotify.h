@@ -93,7 +93,6 @@ enum {
 @end
 
 @interface PlaylistFeatureImplementation : NSObject
-
 - (void)presentAddToPlaylistViewControllerWithTrackURLs:(NSArray<NSURL *> *)trackURLs
                                            addEntityURL:(NSURL *)entityURL
                                     defaultPlaylistName:(NSString *)playlistName
@@ -150,7 +149,8 @@ enum {
 
 @interface SPTScannablesServiceImplementation : NSObject
 @property(retain, nonatomic) id authorizationRequester;
-@property(retain, nonatomic) id dependencies;
+@property(retain, nonatomic) id dependencies; // < 8.4.39
+@property(retain, nonatomic) id scannableDependencies; // >= 8.4.39
 @property(retain, nonatomic) id onboardingPresenter;
 @property(retain, nonatomic) id scannablesDataSource;
 @end
