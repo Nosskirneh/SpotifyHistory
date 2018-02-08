@@ -1,5 +1,6 @@
 #import "SPTHistorySettingsViewController.h"
 
+// Declaring this here since using the iOS 10 SDK results in logs not being visible
 @interface UIApplication (iOS10)
 - (void)openURL:(NSURL *)url 
         options:(NSDictionary<NSString *,id> *)options 
