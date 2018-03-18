@@ -56,9 +56,10 @@ completionHandler:(void (^)(BOOL success))completion;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *cellIdentifier = @"Cell";
+    NSString *cellIdentifier = @"ButtonCell";
 
     if (indexPath.section == 0) {
+        cellIdentifier = @"MultipleChoice";
         return [self tableView:table createMaxSizeCellForIndexPath:indexPath withCellIdentifier:cellIdentifier];
     } else if (indexPath.section == 1) {
         SPTSettingsButtonTableViewCell *cell = [table dequeueReusableCellWithIdentifier:cellIdentifier];
