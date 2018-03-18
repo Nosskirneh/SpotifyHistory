@@ -56,16 +56,16 @@ completionHandler:(void (^)(BOOL success))completion;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSString *cellIdentifier = @"ButtonCell";
+    static NSString *buttonCellID = @"ButtonCell";
 
     if (indexPath.section == 0) {
-        cellIdentifier = @"MultipleChoice";
-        return [self tableView:table createMaxSizeCellForIndexPath:indexPath withCellIdentifier:cellIdentifier];
+        static NSString *multipleCellID = @"MultipleChoice";
+        return [self tableView:table createMaxSizeCellForIndexPath:indexPath withCellIdentifier:multipleCellID];
     } else if (indexPath.section == 1) {
-        SPTSettingsButtonTableViewCell *cell = [table dequeueReusableCellWithIdentifier:cellIdentifier];
+        SPTSettingsButtonTableViewCell *cell = [table dequeueReusableCellWithIdentifier:buttonCellID];
         if (cell == nil)
             cell = [[%c(SPTSettingsButtonTableViewCell) alloc] initWithStyle:UITableViewCellStyleDefault
-                                                             reuseIdentifier:cellIdentifier];
+                                                             reuseIdentifier:buttonCellID];
 
         cell.textLabel.text = @"Export to playlist";
         if (!_playlistFeature || !_prefs[kTracks] || [_prefs[kTracks] count] == 0) {
@@ -77,10 +77,10 @@ completionHandler:(void (^)(BOOL success))completion;
         [self.buttons addObject:cell.button];
         return cell;
     } else if (indexPath.section == 2) {
-        SPTSettingsButtonTableViewCell *cell = [table dequeueReusableCellWithIdentifier:cellIdentifier];
+        SPTSettingsButtonTableViewCell *cell = [table dequeueReusableCellWithIdentifier:buttonCellID];
         if (cell == nil)
             cell = [[%c(SPTSettingsButtonTableViewCell) alloc] initWithStyle:UITableViewCellStyleDefault
-                                                             reuseIdentifier:cellIdentifier];
+                                                             reuseIdentifier:buttonCellID];
 
         cell.textLabel.text = @"Erase history";
         cell.button.glueStyle.normalBackgroundColor = [UIColor colorWithRed:0.73 green:0.15 blue:0.11 alpha:1.0]; // #B9261D
@@ -94,10 +94,10 @@ completionHandler:(void (^)(BOOL success))completion;
         [self.buttons addObject:cell.button];
         return cell;
     } else {
-        SPTSettingsButtonTableViewCell *cell = [table dequeueReusableCellWithIdentifier:cellIdentifier];
+        SPTSettingsButtonTableViewCell *cell = [table dequeueReusableCellWithIdentifier:buttonCellID];
         if (cell == nil)
             cell = [[%c(SPTSettingsButtonTableViewCell) alloc] initWithStyle:UITableViewCellStyleDefault
-                                                             reuseIdentifier:cellIdentifier];
+                                                             reuseIdentifier:buttonCellID];
 
         cell.textLabel.text = @"Donate";
         cell.button.glueStyle.normalBackgroundColor = [UIColor colorWithRed:0.11 green:0.73 blue:0.33 alpha:1.0]; // #1DB954
