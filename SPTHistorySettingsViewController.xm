@@ -291,6 +291,8 @@ completionHandler:(void (^)(BOOL success))completion;
             [presenter queueAlertController:alert];
             [presenter showNextAlert];
         }
+    } else {
+        [self presentAddToPlaylistViewControllerWithTrackURLs:trackURLs];
     }
 }
 
