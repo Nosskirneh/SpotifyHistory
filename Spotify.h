@@ -194,6 +194,7 @@ typedef enum {
 
 @interface SPTAlertPresenter : NSObject
 + (id)sharedInstance;
++ (id)defaultPresenterWithWindow:(id)arg;
 - (UIAlertController *)alertControllerWithTitle:(NSString *)title message:(NSString *)msg actions:(NSArray *)actions;
 - (void)queueAlertController:(UIAlertController *)alert;
 - (void)showNextAlert;

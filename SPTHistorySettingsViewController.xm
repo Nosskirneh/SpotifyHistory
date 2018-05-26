@@ -277,13 +277,19 @@ completionHandler:(void (^)(BOOL success))completion;
                                                     handler:^(UIAlertAction *action) {
                                                         [self presentAddToPlaylistViewControllerWithTrackURLs:trackURLs];
                                                       }];
+        SPTAlertPresenter *presenter = nil;
+        if ([%c(SPTAlertPresenter) respondsToSelector:@selector(sharedInstance)])
+            presenter = [%c(SPTAlertPresenter) sharedInstance];
+        else if ([%c(SPTAlertPresenter) respondsToSelector:@selector(defaultPresenterWithWindow:)])
+            presenter = [%c(SPTAlertPresenter) defaultPresenterWithWindow:[UIApplication sharedApplication].keyWindow];
 
-        if ([%c(SPTAlertPresenter) instancesRespondToSelector:@selector(alertControllerWithTitle:message:actions:)] &&
-            [%c(SPTAlertPresenter) instancesRespondToSelector:@selector(queueAlertController:)] &&
-            [%c(SPTAlertPresenter) instancesRespondToSelector:@selector(showNextAlert)]) {
-            UIAlertController *alert = [[%c(SPTAlertPresenter) sharedInstance] alertControllerWithTitle:@"Duplicate Songs" message:@"Some of these songs exist several times in history" actions:@[skip, all]];
-            [[%c(SPTAlertPresenter) sharedInstance] queueAlertController:alert];
-            [[%c(SPTAlertPresenter) sharedInstance] showNextAlert];
+
+        if ([presenter respondsToSelector:@selector(alertControllerWithTitle:message:actions:)] &&
+            [presenter respondsToSelector:@selector(queueAlertController:)] &&
+            [presenter respondsToSelector:@selector(showNextAlert)]) {
+            UIAlertController *alert = [presenter alertControllerWithTitle:@"Duplicate Songs" message:@"Some of these songs exist several times in history" actions:@[skip, all]];
+            [presenter queueAlertController:alert];
+            [presenter showNextAlert];
         }
     }
 }

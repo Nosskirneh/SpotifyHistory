@@ -284,6 +284,13 @@
         else if ([self.contextMenuFeature.scannablesService respondsToSelector:@selector(dependencies)])
             dep = self.contextMenuFeature.scannablesService.dependencies;
 
+
+        SPTAlertPresenter *presenter = nil;
+        if ([%c(SPTAlertPresenter) respondsToSelector:@selector(sharedInstance)])
+            presenter = [%c(SPTAlertPresenter) sharedInstance];
+        else if ([%c(SPTAlertPresenter) respondsToSelector:@selector(defaultPresenterWithWindow:)])
+            presenter = [%c(SPTAlertPresenter) defaultPresenterWithWindow:[UIApplication sharedApplication].keyWindow];
+
         headerView = [[%c(SPTScannablesContextMenuHeaderView) alloc] initWithTitle:cell.trackName
                                                                           subtitle:subtitle
                                                                          entityURL:cell.trackURI
@@ -291,7 +298,7 @@
                                                                onboardingPresenter:self.contextMenuFeature.scannablesService.onboardingPresenter
                                                             authorizationRequester:self.contextMenuFeature.scannablesService.authorizationRequester
                                                                       dependencies:dep
-                                                                   alertController:nil];
+                                                                   alertController:presenter];
     }
 
     /* Create view controller */
