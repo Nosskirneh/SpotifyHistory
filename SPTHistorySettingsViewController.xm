@@ -22,7 +22,7 @@ completionHandler:(void (^)(BOOL success))completion;
             historyViewController:(SPTHistoryViewController *)historyViewController
                   playlistFeature:(PlaylistFeatureImplementation *)playlistFeature {
     if (self == [super init]) {
-        self.prefs = [[NSDictionary alloc] initWithContentsOfFile:prefPath];
+        self.prefs = [[NSDictionary alloc] initWithContentsOfFile:kPrefPath];
         self.nowPlayingBarHeight = nowPlayingBarHeight;
         self.historyViewController = historyViewController;
         self.playlistFeature = playlistFeature;
@@ -245,8 +245,8 @@ completionHandler:(void (^)(BOOL success))completion;
 }
 
 - (void)savePreferences:(NSDictionary *)prefs {
-    if (![prefs writeToFile:prefPath atomically:NO])
-        HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
+    if (![prefs writeToFile:kPrefPath atomically:NO])
+        HBLogError(@"Could not save %@ to path %@", prefs, kPrefPath);
 }
 
 - (CGFloat)tableView:(UITableView *)table heightForRowAtIndexPath:(NSIndexPath *)indexPath {

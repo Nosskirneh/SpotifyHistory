@@ -1,4 +1,4 @@
-#define prefPath @"/var/mobile/Library/Preferences/se.nosskirneh.spotifyhistory.plist"
+#define kPrefPath ((SpotifyAppDelegate *)[[UIApplication sharedApplication] delegate]).historyPrefPath
 #define kTracks @"tracks"
 #define kMaxSize @"maxSize"
 
@@ -11,6 +11,10 @@ enum {
     leftSwipe = 1,
     rightSwipe = 2
 };
+
+@interface SpotifyAppDelegate : NSObject
+@property (nonatomic, retain) NSString *historyPrefPath;
+@end
 
 // Data objects
 @interface SPTPlayerTrack : NSObject

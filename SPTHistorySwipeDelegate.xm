@@ -30,14 +30,13 @@
         // Remove cell
         NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
 
-        NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
+        NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefPath];
         NSMutableArray *tracks = [prefs[kTracks] mutableCopy];
         [tracks removeObjectAtIndex:indexPath.row];
 
         prefs[kTracks] = tracks;
-        if (![prefs writeToFile:prefPath atomically:NO]) {
-            HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
-        }
+        if (![prefs writeToFile:kPrefPath atomically:NO])
+            HBLogError(@"Could not save %@ to path %@", prefs, kPrefPath);
 
         [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [self.historyViewController checkEmptyTracks:tracks];

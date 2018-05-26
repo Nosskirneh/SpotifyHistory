@@ -1,6 +1,9 @@
 #import "Spotify.h"
 #import "SPTHistoryViewController.h"
 
+#define prefPath @"/var/mobile/Library/Preferences/se.nosskirneh.spotifyhistory.plist"
+#define prefPathSandboxed [NSString stringWithFormat:@"%@/Library/Preferences/se.nosskirneh.spotifyhistory.plist", NSHomeDirectory()]
+
 static SPTGLUEImageLoader *imageLoader;
 static SPTStatefulPlayer *statefulPlayer;
 static SPTImageLoaderImplementation *contextImageLoader;
@@ -74,7 +77,7 @@ static SPTHistoryViewController *historyVC;
 
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == [table numberOfRowsInSection:indexPath.section] - 1) {
-        NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
+        NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefPath];
 
         historyVC = [[SPTHistoryViewController alloc] initWithTracks:prefs[kTracks]
                                                  nowPlayingBarHeight:npBarHeight
@@ -128,7 +131,7 @@ static SPTHistoryViewController *historyVC;
         double current = [[NSDate date] timeIntervalSince1970];
         if (current - timestampLastTrackChange > 10) {
             // Save previously track to history
-            NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
+            NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefPath];
             if (!prefs)
                 prefs = [[NSMutableDictionary alloc] init];
 
@@ -155,8 +158,8 @@ static SPTHistoryViewController *historyVC;
 
             prefs[kTracks] = tracks;
             [tracks release];
-            if (![prefs writeToFile:prefPath atomically:NO])
-                HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
+            if (![prefs writeToFile:kPrefPath atomically:NO])
+                HBLogError(@"Could not save %@ to path %@", prefs, kPrefPath);
 
             if (historyVC)
                 [historyVC updateListWithTracks:tracks];
@@ -252,16 +255,27 @@ static SPTHistoryViewController *historyVC;
 // Clear data on change of user
 %hook SpotifyAppDelegate
 
+%property (nonatomic, retain) NSString *historyPrefPath;
+
+- (BOOL)application:(id)arg1 didFinishLaunchingWithOptions:(id)arg2 {
+    if ([[[UIDevice currentDevice] systemVersion] doubleValue] >= 11)
+        self.historyPrefPath = prefPathSandboxed;
+    else
+        self.historyPrefPath = prefPath;
+
+    return %orig;
+}
+
 - (void)userWillLogOut {
     %orig;
 
-    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:prefPath];
+    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefPath];
     if (!prefs)
         return;
     prefs[kTracks] = @[];
 
-    if (![prefs writeToFile:prefPath atomically:NO])
-        HBLogError(@"Could not save %@ to path %@", prefs, prefPath);
+    if (![prefs writeToFile:kPrefPath atomically:NO])
+        HBLogError(@"Could not save %@ to path %@", prefs, kPrefPath);
 }
 
 %end
