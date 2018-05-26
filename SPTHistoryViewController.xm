@@ -290,13 +290,18 @@
                                                                onboardingPresenter:self.contextMenuFeature.scannablesService.onboardingPresenter
                                                             authorizationRequester:self.contextMenuFeature.scannablesService.authorizationRequester
                                                                       dependencies:dep
-                                                                   alertController:[%c(SPTAlertPresenter) sharedInstance]];
+                                                                   alertController:nil];
     }
 
     /* Create view controller */
     SPTContextMenuOptionsFactoryImplementation *options = [self.contextMenuFeature.contextMenuOptionsFactory contextMenuOptionsWithScannableEnabled:YES];
     SPTContextMenuModel *model = [[%c(SPTContextMenuModel) alloc] initWithOptions:options player:self.statefulPlayer.player];
-    GLUETheme *theme = [%c(GLUETheme) themeWithSPTTheme:[%c(SPTTheme) catTheme]];
+
+    id theme = nil;
+    if (%c(GLUETheme))
+        theme = [%c(GLUETheme) themeWithSPTTheme:[%c(SPTTheme) catTheme]];
+    else if (%c(GLUEThemeBase))
+        theme = [%c(GLUEThemeBase) themeWithSPTTheme:[%c(SPTTheme) catTheme]];
 
     SPTContextMenuViewController *vc = nil;
     if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:logger:model:theme:notificationCenter:)]) {
