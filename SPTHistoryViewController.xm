@@ -90,8 +90,6 @@
 }
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
-    NSDictionary *prefs = [[NSDictionary alloc] initWithContentsOfFile:prefPath];
-    self.tracks = prefs[kTracks];
     return [self.tracks count];
 }
 
@@ -371,6 +369,9 @@
     int prevNumberOfTracks = [self.tracks count];
 
     int diff = newTracks.count - prevNumberOfTracks;
+
+    self.tracks = newTracks;
+
     NSIndexPath *indexPath = nil;
     if (diff > 0) {
         // Addition
@@ -403,8 +404,6 @@
         [self.view insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
         [self.view endUpdates];
     }
-
-    self.tracks = newTracks;
 }
 
 @end
