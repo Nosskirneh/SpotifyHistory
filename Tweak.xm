@@ -141,9 +141,9 @@ static SPTHistoryViewController *historyVC;
             if (prefs[kTracks]) {
                 tracks = prefs[kTracks];
                 // Compare last history item to now playing - are they the same?
-                if ([[tracks firstObject][@"URI"] isEqualToString:tr[@"URI"]]) {
+                if ([[tracks firstObject][@"URI"] isEqualToString:tr[@"URI"]])
                     goto updateTimer; // "break" from if statement - do not add track
-                }
+
                 NSMutableArray *newTracks = [tracks mutableCopy];
                 [newTracks insertObject:tr atIndex:0];
                 int maxSize = prefs[kMaxSize] ? [prefs[kMaxSize] intValue] : 100;
@@ -294,9 +294,8 @@ static SPTHistoryViewController *historyVC;
 %ctor {
     %init();
 
-    if ([%c(SPSession) instancesRespondToSelector:@selector(initWithCore:coreCreateOptions:isPerfTracingEnabled:core:session:accesspointHandler:serverTime:connectivityManager:scheduler:clientVersionString:acceptLanguages:)]) {
+    if ([%c(SPSession) instancesRespondToSelector:@selector(initWithCore:coreCreateOptions:isPerfTracingEnabled:core:session:accesspointHandler:serverTime:connectivityManager:scheduler:clientVersionString:acceptLanguages:)])
         %init(SPSession_8434);
-    } else if ([%c(SPSession) instancesRespondToSelector:@selector(initWithCore:coreCreateOptions:isPerfTracingEnabled:core:session:accesspointHandler:coreTime:connectivityManager:scheduler:clientVersionString:acceptLanguages:)]) {
+    else if ([%c(SPSession) instancesRespondToSelector:@selector(initWithCore:coreCreateOptions:isPerfTracingEnabled:core:session:accesspointHandler:coreTime:connectivityManager:scheduler:clientVersionString:acceptLanguages:)])
         %init(SPSession_8433);
-    }
 }

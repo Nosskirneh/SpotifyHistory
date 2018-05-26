@@ -2,15 +2,15 @@
 #define kTracks @"tracks"
 #define kMaxSize @"maxSize"
 
-enum {
+typedef enum {
     isAvailableOffline = 3,
     isNotAvailableOffline = 0
-};
+} OfflineStates;
 
-enum {
+typedef enum {
     leftSwipe = 1,
     rightSwipe = 2
-};
+} SwipeDirections;
 
 @interface SpotifyAppDelegate : NSObject
 @property (nonatomic, retain) NSString *historyPrefPath;
@@ -67,7 +67,7 @@ enum {
 
 
 // Images
-@interface UIImage (spt)
+@interface UIImage (SPT)
 + (id)imageForSPTIcon:(NSInteger)icon size:(CGSize)size;
 + (id)imageForSPTIcon:(NSInteger)icon size:(CGSize)size color:(UIColor *)color;
 + (id)trackSPTPlaceholderWithSize:(NSInteger)size;

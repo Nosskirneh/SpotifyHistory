@@ -342,12 +342,10 @@ completionHandler:(void (^)(BOOL success))completion;
     UIApplication *application = [UIApplication sharedApplication];
     NSURL *URL = [NSURL URLWithString:@"https://paypal.me/nosskirneh"];
 
-    if ([application respondsToSelector:@selector(openURL:options:completionHandler:)]) {
+    if ([application respondsToSelector:@selector(openURL:options:completionHandler:)])
         [application openURL:URL options:nil completionHandler:nil];
-    } else {
-        // iOS 9 and below
-        [application openURL:URL];
-    }
+    else
+        [application openURL:URL]; // iOS 9 and below
 }
 
 @end

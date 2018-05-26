@@ -98,7 +98,7 @@
 
     SPTTrackTableViewCell *cell = [table dequeueReusableCellWithIdentifier:cellIdentifier];
     if (cell == nil)
-        cell = [[%c(SPTTrackTableViewCell) alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Standard"];
+        cell = [[%c(SPTTrackTableViewCell) alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];
 
     cell.session = self.session;
 
@@ -283,6 +283,7 @@
             dep = self.contextMenuFeature.scannablesService.scannableDependencies;
         else if ([self.contextMenuFeature.scannablesService respondsToSelector:@selector(dependencies)])
             dep = self.contextMenuFeature.scannablesService.dependencies;
+
         headerView = [[%c(SPTScannablesContextMenuHeaderView) alloc] initWithTitle:cell.trackName
                                                                           subtitle:subtitle
                                                                          entityURL:cell.trackURI
@@ -348,9 +349,8 @@
         float alpha = 1;
 
         NSInteger offlineState = [self.session.offlineManager stateForTrackWithURL:cell.trackURI];
-        if (offline && offlineState == isNotAvailableOffline) {
+        if (offline && offlineState == isNotAvailableOffline)
             alpha = 0.4;
-        }
         cell.alpha = alpha;
     }
 }
