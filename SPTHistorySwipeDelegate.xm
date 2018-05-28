@@ -38,6 +38,7 @@
         if (![prefs writeToFile:kPrefPath atomically:NO])
             HBLogError(@"Could not save %@ to path %@", prefs, kPrefPath);
 
+        self.historyViewController.tracks = tracks;
         [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [self.historyViewController checkEmptyTracks:tracks];
     }
