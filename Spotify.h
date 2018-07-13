@@ -114,10 +114,10 @@ typedef enum {
                  imageLoader:(id)arg4
                   headerView:(id)arg5
  modalPresentationController:(id)arg6
-                      logger:(id)arg7
-                       model:(id)arg8
-                       theme:(id)arg9
-          notificationCenter:(id)arg10;
+                     options:(id)arg7
+                       theme:(id)arg8
+          notificationCenter:(id)arg9;
+
 - (id)initWithHeaderImageURL:(id)arg1
                        tasks:(id)arg2
                    entityURL:(id)arg3
@@ -127,6 +127,17 @@ typedef enum {
                        model:(id)arg7
                        theme:(id)arg8
           notificationCenter:(id)arg9;
+
+- (id)initWithHeaderImageURL:(id)arg1
+                       tasks:(id)arg2
+                   entityURL:(id)arg3
+                 imageLoader:(id)arg4
+                  headerView:(id)arg5
+ modalPresentationController:(id)arg6
+                      logger:(id)arg7
+                       model:(id)arg8
+                       theme:(id)arg9
+          notificationCenter:(id)arg10;
 @end
 
 @interface SPTPopoverController : NSObject
@@ -161,6 +172,9 @@ typedef enum {
 
 @interface SPTUIPresentationServiceImplementation : NSObject
 @property(retain, nonatomic) SPTModalPresentationControllerImplementation *modalPresentationController;
+@end
+
+@interface SPTContextMenuOptionsImplementation : NSObject
 @end
 
 @interface SPTContextMenuOptionsFactoryImplementation : NSObject

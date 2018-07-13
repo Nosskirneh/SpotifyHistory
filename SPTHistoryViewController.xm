@@ -302,8 +302,7 @@
     }
 
     /* Create view controller */
-    SPTContextMenuOptionsFactoryImplementation *options = [self.contextMenuFeature.contextMenuOptionsFactory contextMenuOptionsWithScannableEnabled:YES];
-    SPTContextMenuModel *model = [[%c(SPTContextMenuModel) alloc] initWithOptions:options player:self.statefulPlayer.player];
+    SPTContextMenuOptionsImplementation *options = [self.contextMenuFeature.contextMenuOptionsFactory contextMenuOptionsWithScannableEnabled:YES];
 
     id theme = nil;
     if (%c(GLUETheme))
@@ -312,32 +311,47 @@
         theme = [%c(GLUEThemeBase) themeWithSPTTheme:[%c(SPTTheme) catTheme]];
 
     SPTContextMenuViewController *vc = nil;
-    if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:logger:model:theme:notificationCenter:)]) {
-        // 8.4.31
+    if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:options:theme:notificationCenter:)]) {
+        // 8.4.62
         vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
                                                                         tasks:tasks
                                                                     entityURL:cell.trackURI
                                                                   imageLoader:self.contextImageLoader
                                                                    headerView:headerView
                                                   modalPresentationController:self.modalPresentationController
-                                                                       logger:nil
-                                                                        model:model
+                                                                      options:options
                                                                         theme:theme
                                                            notificationCenter:[NSNotificationCenter defaultCenter]];
-    } else if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:model:theme:notificationCenter:)]) {
-        // 8.4.34
-        vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
-                                                                        tasks:tasks
-                                                                    entityURL:cell.trackURI
-                                                                  imageLoader:self.contextImageLoader
-                                                                   headerView:headerView
-                                                  modalPresentationController:self.modalPresentationController
-                                                                        model:model
-                                                                        theme:theme
-                                                           notificationCenter:[NSNotificationCenter defaultCenter]];
+    } else {
+        SPTContextMenuModel *model = [[%c(SPTContextMenuModel) alloc] initWithOptions:options player:self.statefulPlayer.player];
+        if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:logger:model:theme:notificationCenter:)]) {
+            // 8.4.31
+            vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
+                                                                            tasks:tasks
+                                                                        entityURL:cell.trackURI
+                                                                      imageLoader:self.contextImageLoader
+                                                                       headerView:headerView
+                                                      modalPresentationController:self.modalPresentationController
+                                                                           logger:nil
+                                                                            model:model
+                                                                            theme:theme
+                                                               notificationCenter:[NSNotificationCenter defaultCenter]];
+        } else if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:model:theme:notificationCenter:)]) {
+            // 8.4.34
+            vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
+                                                                            tasks:tasks
+                                                                        entityURL:cell.trackURI
+                                                                      imageLoader:self.contextImageLoader
+                                                                       headerView:headerView
+                                                      modalPresentationController:self.modalPresentationController
+                                                                            model:model
+                                                                            theme:theme
+                                                               notificationCenter:[NSNotificationCenter defaultCenter]];
+        }
     }
 
-    [self.modalPresentationController presentViewController:vc animated:YES completion:nil];
+    if (vc)
+        [self.modalPresentationController presentViewController:vc animated:YES completion:nil];
 }
 
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
