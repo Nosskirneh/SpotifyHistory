@@ -60,9 +60,9 @@ typedef enum {
 @end
 
 @interface SPSession : NSObject
-@property(nonatomic, readwrite, assign) SPTOfflineManager *offlineManager;
-@property(nonatomic, readwrite, assign) SPTOfflineModeNotifier *offlineNotifier;
-@property(nonatomic, readwrite, assign) BOOL isOffline;
+@property (nonatomic, readwrite, assign) SPTOfflineManager *offlineManager;
+@property (nonatomic, readwrite, assign) SPTOfflineModeNotifier *offlineNotifier;
+@property (nonatomic, readwrite, assign) BOOL isOffline;
 @end
 
 
@@ -163,15 +163,15 @@ typedef enum {
 @end
 
 @interface SPTScannablesServiceImplementation : NSObject
-@property(retain, nonatomic) id authorizationRequester;
-@property(retain, nonatomic) id dependencies; // < 8.4.39
-@property(retain, nonatomic) id scannableDependencies; // >= 8.4.39
-@property(retain, nonatomic) id onboardingPresenter;
-@property(retain, nonatomic) id scannablesDataSource;
+@property (retain, nonatomic) id authorizationRequester;
+@property (retain, nonatomic) id dependencies; // < 8.4.39
+@property (retain, nonatomic) id scannableDependencies; // >= 8.4.39
+@property (retain, nonatomic) id onboardingPresenter;
+@property (retain, nonatomic) id scannablesDataSource;
 @end
 
 @interface SPTUIPresentationServiceImplementation : NSObject
-@property(retain, nonatomic) SPTModalPresentationControllerImplementation *modalPresentationController;
+@property (retain, nonatomic) SPTModalPresentationControllerImplementation *modalPresentationController;
 @end
 
 @interface SPTContextMenuOptionsImplementation : NSObject
@@ -182,10 +182,10 @@ typedef enum {
 @end
 
 @interface SPContextMenuFeatureImplementation : NSObject
-@property(retain, nonatomic) SPContextMenuActionsFactoryImplementation *actionsFactory;
-@property(retain, nonatomic) SPTContextMenuOptionsFactoryImplementation *contextMenuOptionsFactory;
-@property(nonatomic, assign) SPTScannablesServiceImplementation *scannablesService;
-@property(nonatomic, assign) SPTUIPresentationServiceImplementation *UIPresentationService;
+@property (retain, nonatomic) SPContextMenuActionsFactoryImplementation *actionsFactory;
+@property (retain, nonatomic) SPTContextMenuOptionsFactoryImplementation *contextMenuOptionsFactory;
+@property (nonatomic, assign) SPTScannablesServiceImplementation *scannablesService;
+@property (nonatomic, assign) SPTUIPresentationServiceImplementation *UIPresentationService;
 @end
 
 @interface SPTContextMenuViewControllerIPad : UIViewController
@@ -308,8 +308,8 @@ authorizationRequester:(id)arg2
 @end
 
 @interface SPTQueueServiceImplementation : NSObject
-@property(retain, nonatomic) SPTGLUEImageLoaderFactoryImplementation *glueImageLoaderFactory;
-@property(retain, nonatomic) SPTImageLoaderFactoryImplementation *imageLoaderFactory;
+@property (retain, nonatomic) SPTGLUEImageLoaderFactoryImplementation *glueImageLoaderFactory;
+@property (retain, nonatomic) SPTImageLoaderFactoryImplementation *imageLoaderFactory;
 @end
 
 @interface SPCore : NSObject
@@ -324,8 +324,9 @@ authorizationRequester:(id)arg2
 @property (nonatomic) __weak PlaylistFeatureImplementation *playlistFeature;
 @property (nonatomic) __weak SPTCoreServiceImplementation *coreService;
 @property (retain, nonatomic) SPTStatefulPlayer *statefulPlayer;
-@property(nonatomic) __weak SPTQueueServiceImplementation *queueService;
-@property(nonatomic) __weak SPContextMenuFeatureImplementation *contextMenu;
+@property (nonatomic) __weak SPTQueueServiceImplementation *queueService;
+@property (nonatomic) __weak SPContextMenuFeatureImplementation *contextMenu;
+@property (retain, nonatomic) UIViewController *nowPlayingBarViewController;
 @end
 
 @interface SpotifyApplication : UIApplication

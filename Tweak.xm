@@ -43,6 +43,10 @@ SPTImageLoaderImplementation *getContextImageLoader() {
     return imageLoader;
 }
 
+UIViewController *getNowPlayingBarViewController() {
+    return getRemoteDelegate().nowPlayingBarViewController;
+}
+
 
 // Help method to create a checkmark in settings
 %hook SettingsMultipleChoiceTableViewCell
@@ -80,18 +84,6 @@ SPTImageLoaderImplementation *getContextImageLoader() {
 
 %end
 
-static CGFloat npBarHeight;
-
-// Used to get height of now playing bar
-%hook SPTBarAttachmentViewControllerData
-
-- (void)setHeight:(CGFloat)height {
-    %orig;
-    npBarHeight = height;
-}
-
-%end
-
 /*
  * Presenting the history view:
  * There is probably a better way to do this, with register URI schemas within Spotify.
@@ -109,7 +101,7 @@ static SPTHistoryViewController *historyVC;
         NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefPath];
 
         historyVC = [[SPTHistoryViewController alloc] initWithTracks:prefs[kTracks]
-                                                 nowPlayingBarHeight:npBarHeight
+                                                 nowPlayingBarHeight:getNowPlayingBarViewController().view.frame.size.height
                                                          imageLoader:getImageLoader()
                                                               player:getStatefulPlayer().player
                                                   contextImageLoader:getContextImageLoader()
