@@ -4,12 +4,44 @@
 #define prefPath @"/var/mobile/Library/Preferences/se.nosskirneh.spotifyhistory.plist"
 #define prefPathSandboxed [NSString stringWithFormat:@"%@/Library/Preferences/se.nosskirneh.spotifyhistory.plist", NSHomeDirectory()]
 
-static SPTGLUEImageLoader *imageLoader;
-static SPTStatefulPlayer *statefulPlayer;
-static SPTImageLoaderImplementation *contextImageLoader;
-static PlaylistFeatureImplementation *playlistFeature;
-static SPSession *session;
-static SPContextMenuFeatureImplementation *contextMenuFeature;
+
+SpotifyApplication *getSpotifyApplication() {
+    return (SpotifyApplication *)[UIApplication sharedApplication];
+}
+
+NowPlayingFeatureImplementation *getRemoteDelegate() {
+    return getSpotifyApplication().remoteControlDelegate;
+}
+
+PlaylistFeatureImplementation *getPlaylistFeature() {
+    return getRemoteDelegate().playlistFeature;
+}
+
+SPTStatefulPlayer *getStatefulPlayer() {
+    return getRemoteDelegate().statefulPlayer;
+}
+
+SPSession *getSession() {
+    return getRemoteDelegate().coreService.core.session;
+}
+
+SPContextMenuFeatureImplementation *getContextMenuFeature() {
+    return getRemoteDelegate().contextMenu;
+}
+
+SPTGLUEImageLoader *getImageLoader() {
+    static SPTGLUEImageLoader *imageLoader;
+    if (!imageLoader)
+        imageLoader = [getRemoteDelegate().queueService.glueImageLoaderFactory createImageLoaderForSourceIdentifier:@"se.nosskirneh.spotifyhistory"];
+    return imageLoader;
+}
+
+SPTImageLoaderImplementation *getContextImageLoader() {
+    static SPTImageLoaderImplementation *imageLoader;
+    if (!imageLoader)
+        imageLoader = [getRemoteDelegate().queueService.imageLoaderFactory createImageLoader];
+    return imageLoader;
+}
 
 
 // Help method to create a checkmark in settings
@@ -42,11 +74,8 @@ static SPContextMenuFeatureImplementation *contextMenuFeature;
 - (void)setupNavigationItems {
     %orig;
 
-    if ([%c(SPTCollectionOverviewNavigationModelEntryImplementation) instancesRespondToSelector:@selector(initWithDictionary:)]) {
-        SPTCollectionOverviewNavigationModelEntryImplementation *historyNavEntry = [[%c(SPTCollectionOverviewNavigationModelEntryImplementation) alloc] initWithDictionary:HISTORY_ENTRY_DICT];
-        [self.navigationItems addObject:historyNavEntry];
-        [historyNavEntry release];
-    }
+    if ([%c(SPTCollectionOverviewNavigationModelEntryImplementation) instancesRespondToSelector:@selector(initWithDictionary:)])
+        [self.navigationItems addObject:[[%c(SPTCollectionOverviewNavigationModelEntryImplementation) alloc] initWithDictionary:HISTORY_ENTRY_DICT]];
 }
 
 %end
@@ -81,17 +110,16 @@ static SPTHistoryViewController *historyVC;
 
         historyVC = [[SPTHistoryViewController alloc] initWithTracks:prefs[kTracks]
                                                  nowPlayingBarHeight:npBarHeight
-                                                         imageLoader:imageLoader
-                                                      statefulPlayer:statefulPlayer
-                                                  contextImageLoader:contextImageLoader
-                                                     playlistFeature:playlistFeature
-                                                             session:session
-                                                  contextMenuFeature:contextMenuFeature];
+                                                         imageLoader:getImageLoader()
+                                                              player:getStatefulPlayer().player
+                                                  contextImageLoader:getContextImageLoader()
+                                                     playlistFeature:getPlaylistFeature()
+                                                             session:getSession()
+                                                  contextMenuFeature:getContextMenuFeature()];
 
         [self.navigationController pushViewControllerOnTopOfTheNavigationStack:historyVC animated:YES];
         [table deselectRowAtIndexPath:indexPath animated:NO];
 
-        [prefs release];
         return;
     }
 
@@ -124,7 +152,7 @@ static SPTHistoryViewController *historyVC;
     static double timestampLastTrackChange;
 
     // Prevent timer from resetting when saving to/removing from collection
-    if ([statefulPlayer.queue isTrack:self.currentTrack equalToTrack:track])
+    if ([getStatefulPlayer().queue isTrack:self.currentTrack equalToTrack:track])
         return %orig;
 
     if (self.currentTrack && timestampLastTrackChange) {
@@ -154,17 +182,13 @@ static SPTHistoryViewController *historyVC;
                 tracks = [[NSArray alloc] initWithObjects:tr, nil];
             }
 
-            [tr release];
 
             prefs[kTracks] = tracks;
-            [tracks release];
             if (![prefs writeToFile:kPrefPath atomically:NO])
                 HBLogError(@"Could not save %@ to path %@", prefs, kPrefPath);
 
             if (historyVC)
                 [historyVC updateListWithTracks:tracks];
-
-            [prefs release];
         }
     }
 
@@ -178,83 +202,9 @@ static SPTHistoryViewController *historyVC;
 %end
 
 
-/* Get references to objects */
-
-// Used to fetch images in list
-%hook SPTGLUEImageLoader
-
-- (id)initWithImageLoader:(id)arg sourceIdentifier:(id)arg2 {
-    return imageLoader ? %orig : imageLoader = %orig;
-}
-
-%end
-
-
-// Even though only the SPTPlayerImpl is needed, I'm hooking
-// this since this init method seems far less likely to change.
-%hook SPTStatefulPlayer
-
-- (id)initWithPlayer:(id)player {
-    return statefulPlayer = %orig;
-}
-
-%end
-
-
-// Load images in context menu
-%hook SPTImageLoaderImplementation
-
-- (id)initWithDataLoader:(id)arg1
-    offlineEntityTracker:(id)arg2
-         persistentCache:(id)arg3
-             memoryCache:(id)arg4
-     imageLoaderRegistry:(id)arg5
-      persistentKeyBlock:(id)arg6
-        maximumImageSize:(CGSize)arg7 {
-    return contextImageLoader ? %orig : contextImageLoader = %orig;
-}
-
-%end
-
-
-// Used for adding to playlist with context action
-%hook PlaylistFeatureImplementation
-
-- (void)load {
-    playlistFeature = self;
-    %orig;
-}
-
-%end
-
-
-// Used to check offline mode
-%group SPSession_8433
-// Earlier than 8.4.34
-%hook SPSession
-
-- (id)initWithCore:(id)arg1 coreCreateOptions:(id)arg2 isPerfTracingEnabled:(id)arg3 core:(id)arg4 session:(id)arg5 accesspointHandler:(id)arg6 coreTime:(id)arg7 connectivityManager:(id)arg8 scheduler:(id)arg9 clientVersionString:(id)arg10 acceptLanguages:(id)arg11 {
-    return session = %orig;
-}
-
-%end
-%end
-
-// 8.4.34
-%group SPSession_8434
-%hook SPSession
-
-- (id)initWithCore:(id)arg1 coreCreateOptions:(id)arg2 isPerfTracingEnabled:(id)arg3 core:(id)arg4 session:(id)arg5 accesspointHandler:(id)arg6 serverTime:(id)arg7 connectivityManager:(id)arg8 scheduler:(id)arg9 clientVersionString:(id)arg10 acceptLanguages:(id)arg11 {
-    return session = %orig;
-}
-
-%end
-%end
-
-
-// Clear data on change of user
 %hook SpotifyAppDelegate
 
+// Different path for settings file (sandbox issues on iOS 11)
 %property (nonatomic, retain) NSString *historyPrefPath;
 
 - (BOOL)application:(id)arg1 didFinishLaunchingWithOptions:(id)arg2 {
@@ -266,6 +216,7 @@ static SPTHistoryViewController *historyVC;
     return %orig;
 }
 
+// Clear data on change of user
 - (void)userWillLogOut {
     %orig;
 
@@ -279,23 +230,3 @@ static SPTHistoryViewController *historyVC;
 }
 
 %end
-
-
-// Holds references to useful implementations
-%hook SPContextMenuFeatureImplementation
-
-- (id)init {
-    return contextMenuFeature = %orig;
-}
-
-%end
-
-
-%ctor {
-    %init();
-
-    if ([%c(SPSession) instancesRespondToSelector:@selector(initWithCore:coreCreateOptions:isPerfTracingEnabled:core:session:accesspointHandler:serverTime:connectivityManager:scheduler:clientVersionString:acceptLanguages:)])
-        %init(SPSession_8434);
-    else if ([%c(SPSession) instancesRespondToSelector:@selector(initWithCore:coreCreateOptions:isPerfTracingEnabled:core:session:accesspointHandler:coreTime:connectivityManager:scheduler:clientVersionString:acceptLanguages:)])
-        %init(SPSession_8433);
-}

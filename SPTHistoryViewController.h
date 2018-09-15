@@ -4,20 +4,20 @@
 @property (nonatomic, strong) SPTTableView *view;
 @property (nonatomic, strong) SPTInfoView *infoView;
 @property (nonatomic, strong) NSArray *tracks;
-@property (nonatomic, assign) SPTGLUEImageLoader *imageLoader;
-@property (nonatomic, assign) SPTStatefulPlayer *statefulPlayer;
+@property (nonatomic, strong) SPTGLUEImageLoader *imageLoader;
+@property (nonatomic, strong) SPTPlayerImpl *player;
 @property (nonatomic) CGFloat nowPlayingBarHeight;
-@property (nonatomic, assign) SPTModalPresentationControllerImplementation *modalPresentationController;
-@property (nonatomic, assign) SPTImageLoaderImplementation *contextImageLoader;
-@property (nonatomic, assign) PlaylistFeatureImplementation *playlistFeature;
-@property (nonatomic, assign) SPSession *session;
-@property (nonatomic, assign) SPContextMenuFeatureImplementation *contextMenuFeature;
+@property (nonatomic, strong) SPTModalPresentationControllerImplementation *modalPresentationController;
+@property (nonatomic, strong) SPTImageLoaderImplementation *contextImageLoader;
+@property (nonatomic, strong) PlaylistFeatureImplementation *playlistFeature;
+@property (nonatomic, strong) SPSession *session;
+@property (nonatomic, strong) SPContextMenuFeatureImplementation *contextMenuFeature;
 @property (nonatomic, strong) NSURL *sourceURL;
-@property (nonatomic, assign) UINavigationItem *navigationItem;
+@property (nonatomic, strong) UINavigationItem *navigationItem;
 - (id)initWithTracks:(NSArray *)tracks
  nowPlayingBarHeight:(CGFloat)height
          imageLoader:(SPTGLUEImageLoader *)imageLoader
-      statefulPlayer:(SPTStatefulPlayer *)statefulPlayer
+              player:(SPTPlayerImpl *)player
   contextImageLoader:(SPTImageLoaderImplementation *)contextImageLoader
      playlistFeature:(PlaylistFeatureImplementation *)playlistFeature
              session:(SPSession *)session

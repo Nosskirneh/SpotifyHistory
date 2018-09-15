@@ -189,7 +189,7 @@ typedef enum {
 @end
 
 @interface SPTContextMenuViewControllerIPad : UIViewController
-@property (nonatomic, readwrite, assign) SPTPopoverController *currentPopoverController;
+@property (nonatomic, readwrite, strong) SPTPopoverController *currentPopoverController;
 - (id)initWithHeaderImageURL:(id)arg1
       headerImagePlaceholder:(id)arg2
                        title:(id)arg3
@@ -296,6 +296,42 @@ authorizationRequester:(id)arg2
 @interface SPTSettingsButtonTableViewCell : UITableViewCell
 @property (nonatomic, readwrite, assign) GLUEButton *button;
 @end
+
+
+// Get Spotify objects
+@interface SPTGLUEImageLoaderFactoryImplementation : NSObject
+- (id)createImageLoaderForSourceIdentifier:(NSString *)sourceIdentifier;
+@end
+
+@interface SPTImageLoaderFactoryImplementation : NSObject
+- (id)createImageLoader;
+@end
+
+@interface SPTQueueServiceImplementation : NSObject
+@property(retain, nonatomic) SPTGLUEImageLoaderFactoryImplementation *glueImageLoaderFactory;
+@property(retain, nonatomic) SPTImageLoaderFactoryImplementation *imageLoaderFactory;
+@end
+
+@interface SPCore : NSObject
+- (SPSession *)session;
+@end
+
+@interface SPTCoreServiceImplementation : NSObject
+@property (retain, nonatomic) SPCore *core;
+@end
+
+@interface NowPlayingFeatureImplementation : NSObject
+@property (nonatomic) __weak PlaylistFeatureImplementation *playlistFeature;
+@property (nonatomic) __weak SPTCoreServiceImplementation *coreService;
+@property (retain, nonatomic) SPTStatefulPlayer *statefulPlayer;
+@property(nonatomic) __weak SPTQueueServiceImplementation *queueService;
+@property(nonatomic) __weak SPContextMenuFeatureImplementation *contextMenu;
+@end
+
+@interface SpotifyApplication : UIApplication
+@property (nonatomic) __weak NowPlayingFeatureImplementation *remoteControlDelegate;
+@end
+
 
 
 /*

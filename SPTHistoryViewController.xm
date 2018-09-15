@@ -18,7 +18,7 @@
 - (id)initWithTracks:(NSArray *)tracks
  nowPlayingBarHeight:(CGFloat)height
          imageLoader:(SPTGLUEImageLoader *)imageLoader
-      statefulPlayer:(SPTStatefulPlayer *)statefulPlayer
+              player:(SPTPlayerImpl *)player
   contextImageLoader:(SPTImageLoaderImplementation *)contextImageLoader
      playlistFeature:(PlaylistFeatureImplementation *)playlistFeature
              session:(SPSession *)session
@@ -28,7 +28,7 @@
         self.nowPlayingBarHeight = height;
         self.sourceURL = [NSURL URLWithString:@"spotify:collection:history"];
         self.imageLoader = imageLoader;
-        self.statefulPlayer = statefulPlayer;
+        self.player = player;
         self.modalPresentationController = contextMenuFeature.UIPresentationService.modalPresentationController;
         self.contextImageLoader = contextImageLoader;
         self.playlistFeature = playlistFeature;
@@ -58,7 +58,6 @@
 }
 
 - (void)dealloc {
-    [super dealloc];
     [self.session.offlineNotifier removeOfflineModeObserver:self];
 }
 
@@ -165,7 +164,7 @@
     [cell setShelf:lShelf forGesture:leftSwipe];
     [cell setShelf:rShelf forGesture:rightSwipe];
     [cell setSwipeDelegate:[[SPTHistorySwipeDelegate alloc] initWithTableView:table
-                                                                       player:self.statefulPlayer.player
+                                                                       player:self.player
                                                         historyViewController:self]];
 
     return cell;
@@ -183,12 +182,12 @@
     // Add to playlist
     if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURIs:logContext:sourceURL:containerURL:playlistName:actionIdentifier:contextSourceURL:)]) {
         SPTask *playlist = [self.contextMenuFeature.actionsFactory actionForURIs:@[cell.trackURI]
-                                                                 logContext:nil
-                                                                  sourceURL:self.sourceURL
-                                                               containerURL:nil
-                                                               playlistName:cell.trackName
-                                                           actionIdentifier:@"add-to-playlist"
-                                                           contextSourceURL:self.sourceURL];
+                                                                      logContext:nil
+                                                                       sourceURL:self.sourceURL
+                                                                    containerURL:nil
+                                                                    playlistName:cell.trackName
+                                                                actionIdentifier:@"add-to-playlist"
+                                                                contextSourceURL:self.sourceURL];
         [tasks addObject:playlist];
     }
 
@@ -196,40 +195,40 @@
     if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:tracks:actionIdentifier:)]) {
         SPTPlayerTrack *track = [%c(SPTPlayerTrack) trackWithURI:cell.trackURI];
         SPTask *queue = [self.contextMenuFeature.actionsFactory actionForURI:nil
-                                                             logContext:nil
-                                                              sourceURL:self.sourceURL
-                                                                 tracks:@[track]
-                                                       actionIdentifier:@"queue-track"];
+                                                                  logContext:nil
+                                                                   sourceURL:self.sourceURL
+                                                                      tracks:@[track]
+                                                            actionIdentifier:@"queue-track"];
         [tasks addObject:queue];
     }
 
     // Share
     if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:itemName:creatorName:sourceName:imageURL:clipboardLinkTitle:actionIdentifier:)]) {
         SPTask *share = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
-                                                             logContext:nil
-                                                              sourceURL:self.sourceURL
-                                                               itemName:cell.trackName
-                                                            creatorName:cell.artist
-                                                             sourceName:cell.artist
-                                                               imageURL:cell.imageURL
-                                                     clipboardLinkTitle:nil
-                                                       actionIdentifier:@"share-track"];
+                                                                  logContext:nil
+                                                                   sourceURL:self.sourceURL
+                                                                    itemName:cell.trackName
+                                                                 creatorName:cell.artist
+                                                                  sourceName:cell.artist
+                                                                    imageURL:cell.imageURL
+                                                          clipboardLinkTitle:nil
+                                                            actionIdentifier:@"share-track"];
         [tasks addObject:share];
     }
 
     if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:actionIdentifier:)]) {
         // Collection
         SPTask *collection = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
-                                                                  logContext:nil
-                                                                   sourceURL:self.sourceURL
-                                                            actionIdentifier:@"collection"];
+                                                                       logContext:nil
+                                                                        sourceURL:self.sourceURL
+                                                                 actionIdentifier:@"collection"];
         [tasks insertObject:collection atIndex:0];
 
         // Start radio
         SPTask *radio = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
-                                                             logContext:nil
-                                                              sourceURL:self.sourceURL
-                                                       actionIdentifier:@"start-radio"];
+                                                                  logContext:nil
+                                                                   sourceURL:self.sourceURL
+                                                            actionIdentifier:@"start-radio"];
         [tasks addObject:radio];
     }
 
@@ -323,7 +322,7 @@
                                                                         theme:theme
                                                            notificationCenter:[NSNotificationCenter defaultCenter]];
     } else {
-        SPTContextMenuModel *model = [[%c(SPTContextMenuModel) alloc] initWithOptions:options player:self.statefulPlayer.player];
+        SPTContextMenuModel *model = [[%c(SPTContextMenuModel) alloc] initWithOptions:options player:self.player];
         if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:logger:model:theme:notificationCenter:)]) {
             // 8.4.31
             vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
@@ -357,7 +356,7 @@
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSURL *URI = ((SPTTrackTableViewCell *)[table cellForRowAtIndexPath:indexPath]).trackURI;
     SPTPlayerContext *context = [%c(SPTPlayerContext) contextForURI:URI];
-    [self.statefulPlayer.player playContext:context options:nil];
+    [self.player playContext:context options:nil];
     [table deselectRowAtIndexPath:indexPath animated:YES];
 }
 
