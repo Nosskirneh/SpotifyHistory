@@ -1,6 +1,5 @@
 #import "SPTHistoryViewController.h"
 #import "SPTTrackTableViewCell.h"
-#import "SPTHistorySwipeDelegate.h"
 #import "SPTHistorySettingsViewController.h"
 
 @interface SPTTrackContextButton : UIButton
@@ -29,7 +28,6 @@
         self.sourceURL = [NSURL URLWithString:@"spotify:collection:history"];
         self.imageLoader = imageLoader;
         self.player = player;
-        self.modalPresentationController = contextMenuFeature.UIPresentationService.modalPresentationController;
         self.contextImageLoader = contextImageLoader;
         self.playlistFeature = playlistFeature;
         self.session = session;
@@ -163,194 +161,75 @@
     SPTSwipeableTableViewCellShelf *rShelf = [%c(SPTSwipeableTableViewCellShelf) removeFromCollectionShelf];
     [cell setShelf:lShelf forGesture:leftSwipe];
     [cell setShelf:rShelf forGesture:rightSwipe];
-    [cell setSwipeDelegate:[[SPTHistorySwipeDelegate alloc] initWithTableView:table
-                                                                       player:self.player
-                                                        historyViewController:self]];
+    [cell setSwipeDelegate:self];
 
     return cell;
 }
 
-- (void)showContextMenu:(SPTTrackContextButton *)sender {
-    if (!self.modalPresentationController)
-        return;
+- (void)swipeableTableViewCell:(SPTTrackTableViewCell *)cell
+            didCompleteGesture:(long long)gesture {
+    if (gesture == leftSwipe) {
+        // Add to queue
+        if (self.player &&
+            [%c(SPTCosmosPlayerQueue) instancesRespondToSelector:@selector(initWithPlayer:)]) {
+            SPTCosmosPlayerQueue *queue = [[%c(SPTCosmosPlayerQueue) alloc] initWithPlayer:self.player];
+            [queue queueTrack:[%c(SPTPlayerTrack) trackWithURI:cell.trackURI]];
 
-    SPTTrackTableViewCell *cell = sender.cell;
+            // Show alert
+            if (%c(SPTProgressView) && [%c(SPTProgressView) respondsToSelector:@selector(progressView)]) {
+                SPTProgressView *view = [%c(SPTProgressView) progressView];
+                view.frame = self.view.frame;
+                view.title = @"Added to Queue";
+                view.mode = SPTProgressViewCheckmarkMode;
+                [[[UIApplication sharedApplication] keyWindow] addSubview:view];
+                [view animateShowing];
+                [view performSelector:@selector(animateHiding) withObject:nil afterDelay:2];
+            }
+        }
+    } else {
+        // Remove cell
+        UITableView *tableView = self.view;
+        NSIndexPath *indexPath = [tableView indexPathForCell:cell];
 
-    /* Build actions */
-    NSMutableArray *tasks = [NSMutableArray new];
+        NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefPath];
+        NSMutableArray *tracks = [prefs[kTracks] mutableCopy];
+        [tracks removeObjectAtIndex:indexPath.row];
 
-    // Add to playlist
-    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURIs:logContext:sourceURL:containerURL:playlistName:actionIdentifier:contextSourceURL:)]) {
-        SPTask *playlist = [self.contextMenuFeature.actionsFactory actionForURIs:@[cell.trackURI]
-                                                                      logContext:nil
-                                                                       sourceURL:self.sourceURL
-                                                                    containerURL:nil
-                                                                    playlistName:cell.trackName
-                                                                actionIdentifier:@"add-to-playlist"
-                                                                contextSourceURL:self.sourceURL];
-        [tasks addObject:playlist];
+        prefs[kTracks] = tracks;
+        if (![prefs writeToFile:kPrefPath atomically:NO])
+            HBLogError(@"Could not save %@ to path %@", prefs, kPrefPath);
+
+        self.tracks = tracks;
+        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        [self checkEmptyTracks:tracks];
     }
-
-    // Add to queue
-    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:tracks:actionIdentifier:)]) {
-        SPTPlayerTrack *track = [%c(SPTPlayerTrack) trackWithURI:cell.trackURI];
-        SPTask *queue = [self.contextMenuFeature.actionsFactory actionForURI:nil
-                                                                  logContext:nil
-                                                                   sourceURL:self.sourceURL
-                                                                      tracks:@[track]
-                                                            actionIdentifier:@"queue-track"];
-        [tasks addObject:queue];
-    }
-
-    // Share
-    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:itemName:creatorName:sourceName:imageURL:clipboardLinkTitle:actionIdentifier:)]) {
-        SPTask *share = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
-                                                                  logContext:nil
-                                                                   sourceURL:self.sourceURL
-                                                                    itemName:cell.trackName
-                                                                 creatorName:cell.artist
-                                                                  sourceName:cell.artist
-                                                                    imageURL:cell.imageURL
-                                                          clipboardLinkTitle:nil
-                                                            actionIdentifier:@"share-track"];
-        [tasks addObject:share];
-    }
-
-    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(actionForURI:logContext:sourceURL:actionIdentifier:)]) {
-        // Collection
-        SPTask *collection = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
-                                                                       logContext:nil
-                                                                        sourceURL:self.sourceURL
-                                                                 actionIdentifier:@"collection"];
-        [tasks insertObject:collection atIndex:0];
-
-        // Start radio
-        SPTask *radio = [self.contextMenuFeature.actionsFactory actionForURI:cell.trackURI
-                                                                  logContext:nil
-                                                                   sourceURL:self.sourceURL
-                                                            actionIdentifier:@"start-radio"];
-        [tasks addObject:radio];
-    }
-
-    // Go to album
-    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(viewAlbumWithAlbumURL:logContext:)]) {
-        SPTask *album = [self.contextMenuFeature.actionsFactory viewAlbumWithAlbumURL:cell.albumURI logContext:nil];
-        [tasks addObject:album];
-    }
-
-    // Go to artist
-    if ([self.contextMenuFeature.actionsFactory respondsToSelector:@selector(viewArtistWithURL:logContext:)]) {
-        SPTask *artist = [self.contextMenuFeature.actionsFactory viewArtistWithURL:cell.artistURI logContext:nil];
-        [tasks addObject:artist];
-    }
-
-    [self presentContextMenuWithTasks:tasks fromCell:cell fromButton:sender];
 }
 
-- (void)presentContextMenuWithTasks:(NSArray *)tasks
-                           fromCell:(SPTTrackTableViewCell *)cell
-                         fromButton:(SPTTrackContextButton *)sender {
-    NSString *subtitle = [NSString stringWithFormat:@"%@ • %@", cell.artist, cell.album];
+- (void)showContextMenu:(SPTTrackContextButton *)sender {
+    SPTTrackTableViewCell *cell = sender.cell;
 
-    // iPad
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        SPTContextMenuViewControllerIPad *vc = nil;
-        if ([%c(SPTContextMenuViewControllerIPad) instancesRespondToSelector:@selector(initWithHeaderImageURL:headerImagePlaceholder:title:subtitle:metadataTitle:actions:entityURL:trackURL:imageLoader:senderView:)]) {
-            vc = [[%c(SPTContextMenuViewControllerIPad) alloc] initWithHeaderImageURL:cell.imageURL
-                                                               headerImagePlaceholder:[UIImage trackSPTPlaceholderWithSize:0]
-                                                                                title:cell.trackName
-                                                                             subtitle:subtitle
-                                                                        metadataTitle:nil
-                                                                                tasks:tasks
-                                                                            entityURL:self.sourceURL
-                                                                             trackURL:cell.trackURI
-                                                                          imageLoader:self.contextImageLoader
-                                                                           senderView:sender];
-            SPNavigationController *navController = [[%c(SPNavigationController) alloc] initWithRootViewController:vc];
-            vc.currentPopoverController = [[%c(SPTPopoverController) alloc] initWithContentViewController:navController];
-            SPTContextMenuIpadPresenterImplementation *contextPresenter = [[%c(SPTContextMenuIpadPresenterImplementation) alloc] initWithPopoverController:vc.currentPopoverController];
-            [contextPresenter presentWithSenderView:sender permittedArrowDirections:UIPopoverArrowDirectionRight animated:YES];
-        }
-        return;
-    }
-
-    // iPhone
-    SPTScannablesContextMenuHeaderView *headerView = nil;
-    if ([%c(SPTScannablesContextMenuHeaderView) instancesRespondToSelector:@selector(initWithTitle:subtitle:entityURL:dataSource:onboardingPresenter:authorizationRequester:dependencies:alertController:)]) {
-        id dep = nil;
-        if ([self.contextMenuFeature.scannablesService respondsToSelector:@selector(scannableDependencies)]) // >= 8.4.39
-            dep = self.contextMenuFeature.scannablesService.scannableDependencies;
-        else if ([self.contextMenuFeature.scannablesService respondsToSelector:@selector(dependencies)])
-            dep = self.contextMenuFeature.scannablesService.dependencies;
-
-
-        SPTAlertPresenter *presenter = nil;
-        if ([%c(SPTAlertPresenter) respondsToSelector:@selector(sharedInstance)])
-            presenter = [%c(SPTAlertPresenter) sharedInstance];
-        else if ([%c(SPTAlertPresenter) respondsToSelector:@selector(defaultPresenterWithWindow:)])
-            presenter = [%c(SPTAlertPresenter) defaultPresenterWithWindow:[UIApplication sharedApplication].keyWindow];
-
-        headerView = [[%c(SPTScannablesContextMenuHeaderView) alloc] initWithTitle:cell.trackName
-                                                                          subtitle:subtitle
-                                                                         entityURL:cell.trackURI
-                                                                        dataSource:self.contextMenuFeature.scannablesService.scannablesDataSource
-                                                               onboardingPresenter:self.contextMenuFeature.scannablesService.onboardingPresenter
-                                                            authorizationRequester:self.contextMenuFeature.scannablesService.authorizationRequester
-                                                                      dependencies:dep
-                                                                   alertController:presenter];
-    }
-
-    /* Create view controller */
+    SPTArtistEntityImpl *artist = [%c(SPTArtistEntityFactory) artistEntityForName:cell.artist uri:cell.artistURI imageURL:nil];
     SPTContextMenuOptionsImplementation *options = [self.contextMenuFeature.contextMenuOptionsFactory contextMenuOptionsWithScannableEnabled:YES];
-
-    id theme = nil;
-    if (%c(GLUETheme))
-        theme = [%c(GLUETheme) themeWithSPTTheme:[%c(SPTTheme) catTheme]];
-    else if (%c(GLUEThemeBase))
-        theme = [%c(GLUEThemeBase) themeWithSPTTheme:[%c(SPTTheme) catTheme]];
-
-    SPTContextMenuViewController *vc = nil;
-    if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:options:theme:notificationCenter:)]) {
-        // 8.4.62
-        vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
-                                                                        tasks:tasks
-                                                                    entityURL:cell.trackURI
-                                                                  imageLoader:self.contextImageLoader
-                                                                   headerView:headerView
-                                                  modalPresentationController:self.modalPresentationController
-                                                                      options:options
-                                                                        theme:theme
-                                                           notificationCenter:[NSNotificationCenter defaultCenter]];
-    } else {
-        SPTContextMenuModel *model = [[%c(SPTContextMenuModel) alloc] initWithOptions:options player:self.player];
-        if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:logger:model:theme:notificationCenter:)]) {
-            // 8.4.31
-            vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
-                                                                            tasks:tasks
-                                                                        entityURL:cell.trackURI
-                                                                      imageLoader:self.contextImageLoader
-                                                                       headerView:headerView
-                                                      modalPresentationController:self.modalPresentationController
-                                                                           logger:nil
-                                                                            model:model
-                                                                            theme:theme
-                                                               notificationCenter:[NSNotificationCenter defaultCenter]];
-        } else if ([%c(SPTContextMenuViewController) instancesRespondToSelector:@selector(initWithHeaderImageURL:tasks:entityURL:imageLoader:headerView:modalPresentationController:model:theme:notificationCenter:)]) {
-            // 8.4.34
-            vc = [[%c(SPTContextMenuViewController) alloc] initWithHeaderImageURL:cell.imageURL
-                                                                            tasks:tasks
-                                                                        entityURL:cell.trackURI
-                                                                      imageLoader:self.contextImageLoader
-                                                                       headerView:headerView
-                                                      modalPresentationController:self.modalPresentationController
-                                                                            model:model
-                                                                            theme:theme
-                                                               notificationCenter:[NSNotificationCenter defaultCenter]];
-        }
-    }
-
-    if (vc)
-        [self.modalPresentationController presentViewController:vc animated:YES completion:nil];
+    if (![self.contextMenuFeature.contextMenuPresenterFactory respondsToSelector:@selector(contextMenuPresenterForTrackWithTrackURL:trackName:trackMetadata:playable:imageURL:artists:albumName:albumURL:viewURL:contextSourceURL:metadataTitle:logContextIphone:logContextIpad:senderView:options:)])
+        return;
+    id<SPTContextMenuPresenter> presenter = [self.contextMenuFeature.contextMenuPresenterFactory contextMenuPresenterForTrackWithTrackURL:cell.trackURI
+                                                                                                                                trackName:cell.textLabel.text
+                                                                                                                            trackMetadata:nil
+                                                                                                                                 playable:YES
+                                                                                                                                 imageURL:cell.imageURL
+                                                                                                                                  artists:@[artist]
+                                                                                                                                albumName:cell.album
+                                                                                                                                 albumURL:cell.albumURI
+                                                                                                                                  viewURL:self.sourceURL
+                                                                                                                         contextSourceURL:nil
+                                                                                                                            metadataTitle:nil
+                                                                                                                         logContextIphone:nil
+                                                                                                                           logContextIpad:nil
+                                                                                                                               senderView:sender
+                                                                                                                                  options:options];
+    if (![presenter respondsToSelector:@selector(presentWithSenderView:permittedArrowDirections:animated:)])
+        return;
+    [presenter presentWithSenderView:sender permittedArrowDirections:UIPopoverArrowDirectionRight animated:YES];
 }
 
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -392,7 +271,6 @@
         return;
 
     int prevNumberOfTracks = [self.tracks count];
-
     int diff = newTracks.count - prevNumberOfTracks;
 
     self.tracks = newTracks;

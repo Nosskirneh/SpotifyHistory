@@ -106,72 +106,11 @@ typedef enum {
                                        contextSourceURL:(NSURL *)contextSourceURL;
 @end
 
-// Context menu
-@interface SPTContextMenuViewController : UIViewController
-- (id)initWithHeaderImageURL:(id)arg1
-                       tasks:(id)arg2
-                   entityURL:(id)arg3
-                 imageLoader:(id)arg4
-                  headerView:(id)arg5
- modalPresentationController:(id)arg6
-                     options:(id)arg7
-                       theme:(id)arg8
-          notificationCenter:(id)arg9;
-
-- (id)initWithHeaderImageURL:(id)arg1
-                       tasks:(id)arg2
-                   entityURL:(id)arg3
-                 imageLoader:(id)arg4
-                  headerView:(id)arg5
- modalPresentationController:(id)arg6
-                       model:(id)arg7
-                       theme:(id)arg8
-          notificationCenter:(id)arg9;
-
-- (id)initWithHeaderImageURL:(id)arg1
-                       tasks:(id)arg2
-                   entityURL:(id)arg3
-                 imageLoader:(id)arg4
-                  headerView:(id)arg5
- modalPresentationController:(id)arg6
-                      logger:(id)arg7
-                       model:(id)arg8
-                       theme:(id)arg9
-          notificationCenter:(id)arg10;
-@end
-
-@interface SPTPopoverController : NSObject
-- (id)initWithContentViewController:(id)arg1;
-@end
-
-@interface SPTContextMenuIpadPresenterImplementation : NSObject
-- (id)initWithPopoverController:(SPTPopoverController *)popoverController;
-- (void)presentWithSenderView:(UIView *)sender permittedArrowDirections:(NSUInteger)directions animated:(BOOL)animate;
-@end
-
-@interface SPTask : NSObject
-@end
-
-@interface SPContextMenuActionsFactoryImplementation : NSObject
-- (id)actionForURIs:(id)arg1 logContext:(id)arg2 sourceURL:(id)arg3 containerURL:(id)arg4 playlistName:(id)arg5 actionIdentifier:(id)arg6 contextSourceURL:(id)arg7;
-- (id)actionForURI:(id)arg1 logContext:(id)arg2 sourceURL:(id)arg3 tracks:(id)arg4 actionIdentifier:(id)arg5;
-- (id)actionForURI:(id)arg1 logContext:(id)arg2 sourceURL:(id)arg3 itemName:(id)arg4 creatorName:(id)arg5 sourceName:(id)arg6 imageURL:(id)arg7 clipboardLinkTitle:(id)arg8 actionIdentifier:(id)arg9;
-- (id)actionForURI:(id)arg1 logContext:(id)arg2 sourceURL:(id)arg3 actionIdentifier:(id)arg4;
-- (id)actionForURIs:(id)arg1 logContext:(id)arg2 sourceURL:(id)arg3 actionIdentifier:(id)arg4 title:(id)arg5 albumTitle:(id)arg6 artistTitle:(id)arg7 imageURL:(id)arg8 clipboardLinkTitle:(id)arg9 tracks:(id)arg10 containerEntityURL:(id)arg11;
-- (id)viewAlbumWithAlbumURL:(id)arg1 logContext:(id)arg2;
-- (id)viewArtistWithURL:(id)arg1 logContext:(id)arg2;
-@end
-
-@interface SPTScannablesServiceImplementation : NSObject
-@property (retain, nonatomic) id authorizationRequester;
-@property (retain, nonatomic) id dependencies; // < 8.4.39
-@property (retain, nonatomic) id scannableDependencies; // >= 8.4.39
-@property (retain, nonatomic) id onboardingPresenter;
-@property (retain, nonatomic) id scannablesDataSource;
-@end
-
-@interface SPTUIPresentationServiceImplementation : NSObject
-@property (retain, nonatomic) SPTModalPresentationControllerImplementation *modalPresentationController;
+@protocol SPTContextMenuPresenter <NSObject>
+@property (readonly, nonatomic, getter=isPresenting) BOOL presenting;
+@property (nonatomic) __weak id delegate;
+- (void)presentInViewController:(UIViewController *)arg1 senderView:(UIView *)arg2 permittedArrowDirections:(unsigned long long)arg3 animated:(BOOL)arg4;
+- (void)presentWithSenderView:(UIView *)arg1 permittedArrowDirections:(unsigned long long)arg2 animated:(BOOL)arg3;
 @end
 
 @interface SPTContextMenuOptionsImplementation : NSObject
@@ -181,30 +120,22 @@ typedef enum {
 - (id)contextMenuOptionsWithScannableEnabled:(BOOL)enabled;
 @end
 
+@interface SPTArtistEntityImpl : NSObject
+@end
+
+@interface SPTArtistEntityFactory : NSObject
++ (id)artistEntityForName:(id)arg1 uri:(id)arg2 imageURL:(id)arg3;
+@end
+
+@interface SPTContextMenuPresenterFactoryImplementation : NSObject
+- (id<SPTContextMenuPresenter>)contextMenuPresenterForTrackWithTrackURL:(id)arg1 trackName:(id)arg2 trackMetadata:(id)arg3 playable:(BOOL)arg4 imageURL:(id)arg5 artists:(id)arg6 albumName:(id)arg7 albumURL:(id)arg8 viewURL:(id)arg9 contextSourceURL:(id)arg10 metadataTitle:(id)arg11 logContextIphone:(id)arg12 logContextIpad:(id)arg13 senderView:(id)arg14 options:(id)arg15;
+@end
+
 @interface SPContextMenuFeatureImplementation : NSObject
-@property (retain, nonatomic) SPContextMenuActionsFactoryImplementation *actionsFactory;
 @property (retain, nonatomic) SPTContextMenuOptionsFactoryImplementation *contextMenuOptionsFactory;
-@property (nonatomic, assign) SPTScannablesServiceImplementation *scannablesService;
-@property (nonatomic, assign) SPTUIPresentationServiceImplementation *UIPresentationService;
+@property (retain, nonatomic) SPTContextMenuPresenterFactoryImplementation *contextMenuPresenterFactory;
 @end
 
-@interface SPTContextMenuViewControllerIPad : UIViewController
-@property (nonatomic, readwrite, strong) SPTPopoverController *currentPopoverController;
-- (id)initWithHeaderImageURL:(id)arg1
-      headerImagePlaceholder:(id)arg2
-                       title:(id)arg3
-                    subtitle:(id)arg4
-               metadataTitle:(id)arg5
-                       tasks:(id)arg6
-                   entityURL:(id)arg7
-                    trackURL:(id)arg8
-                 imageLoader:(id)arg9
-                  senderView:(id)arg10;
-@end
-
-@interface SPTContextMenuModel : NSObject
-- (id)initWithOptions:(id)options player:(id)player;
-@end
 
 @interface SPTAlertPresenter : NSObject
 + (id)sharedInstance;
@@ -213,18 +144,6 @@ typedef enum {
 - (void)queueAlertController:(UIAlertController *)alert;
 - (void)showNextAlert;
 @end
-
-@interface SPTScannablesContextMenuHeaderView : UIView
-- (id)initWithTitle:(NSString *)title
-           subtitle:(NSString *)subtitle
-          entityURL:(NSURL *)URL
-         dataSource:(id)dataSource
-onboardingPresenter:(id)arg1
-authorizationRequester:(id)arg2
-       dependencies:(id)dep
-    alertController:(SPTAlertPresenter *)alert;
-@end
-
 
 // Views and view controllers
 @interface SPTCollectionOverviewNavigationModelEntryImplementation : NSObject
@@ -263,9 +182,14 @@ authorizationRequester:(id)arg2
 + (id)removeFromCollectionShelf;
 @end
 
+@protocol SPTSwipeableTableViewCellDelegate <NSObject>
+@optional
+- (void)swipeableTableViewCell:(id)arg1 didCompleteGesture:(long long)arg2;
+@end
+
 @interface SPTSwipeableTableViewCell : UITableViewCell
+@property(nonatomic) __weak id <SPTSwipeableTableViewCellDelegate> swipeDelegate;
 - (void)setShelf:(id)shelf forGesture:(NSInteger)gesture;
-- (void)setSwipeDelegate:(id)delegate;
 @end
 
 @interface SettingsMultipleChoiceTableViewCell : UITableViewCell
@@ -332,6 +256,7 @@ authorizationRequester:(id)arg2
 @interface SpotifyApplication : UIApplication
 @property (nonatomic) __weak NowPlayingFeatureImplementation *remoteControlDelegate;
 @end
+// ---
 
 
 
@@ -341,11 +266,11 @@ authorizationRequester:(id)arg2
  * 1: checkmark
  * 2: cross
  */
-enum {
-    threeDotsMode,
-    checkmarkMode,
-    crossMode
-};
+typedef enum {
+    SPTProgressViewDotsMode,
+    SPTProgressViewCheckmarkMode,
+    SPTProgressViewCrossMode
+} SPTProgressViewMode;
 
 @interface SPTProgressView : UIView
 @property (nonatomic, copy, readwrite) NSString *title;

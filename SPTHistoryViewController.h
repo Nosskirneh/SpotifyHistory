@@ -1,19 +1,19 @@
 #import "Spotify.h"
 
-@interface SPTHistoryViewController : UITableViewController
+@interface SPTHistoryViewController : UITableViewController <SPTSwipeableTableViewCellDelegate>
 @property (nonatomic, strong) SPTTableView *view;
 @property (nonatomic, strong) SPTInfoView *infoView;
 @property (nonatomic, strong) NSArray *tracks;
 @property (nonatomic, strong) SPTGLUEImageLoader *imageLoader;
 @property (nonatomic, strong) SPTPlayerImpl *player;
 @property (nonatomic) CGFloat nowPlayingBarHeight;
-@property (nonatomic, strong) SPTModalPresentationControllerImplementation *modalPresentationController;
 @property (nonatomic, strong) SPTImageLoaderImplementation *contextImageLoader;
 @property (nonatomic, strong) PlaylistFeatureImplementation *playlistFeature;
 @property (nonatomic, strong) SPSession *session;
 @property (nonatomic, strong) SPContextMenuFeatureImplementation *contextMenuFeature;
 @property (nonatomic, strong) NSURL *sourceURL;
 @property (nonatomic, strong) UINavigationItem *navigationItem;
+@property (nonatomic, strong) id <SPTSwipeableTableViewCellDelegate> swipeDelegate;
 - (id)initWithTracks:(NSArray *)tracks
  nowPlayingBarHeight:(CGFloat)height
          imageLoader:(SPTGLUEImageLoader *)imageLoader

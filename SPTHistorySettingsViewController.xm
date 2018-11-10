@@ -339,7 +339,7 @@ completionHandler:(void (^)(BOOL success))completion;
         SPTProgressView *view = [%c(SPTProgressView) progressView];
         view.frame = self.view.frame;
         view.title = @"Erased all history";
-        view.mode = crossMode;
+        view.mode = SPTProgressViewCrossMode;
         [[[UIApplication sharedApplication] keyWindow] addSubview:view];
         [view animateShowing];
         [view performSelector:@selector(animateHiding) withObject:nil afterDelay:2];
